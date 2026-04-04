@@ -38,8 +38,7 @@ const rows: any = ref(null);
 const { t, locale: i18nLocale } = useI18n();
 
 const cols: any = ref([
-	{ field: 'name_en', title: t('services.serviceNameEn') },
-	{ field: 'name_ar', title: t('services.serviceNameAr') },
+	{ field: 'name', title: t('services.serviceNameColumn') },
 	{ field: 'sale_price', title: t('services.price') },
 	{ field: 'is_active', title: t('services.status'), sort: false },
 	{ field: 'actions', title: t('services.actions'), sort: false },
@@ -95,8 +94,7 @@ const locale = ref('en'); // Default locale
 // Function to update column titles based on locale
 const updateColumnTitles = () => {
 	cols.value = [
-		{ field: 'name_en', title: t('services.serviceNameEn') },
-		{ field: 'name_ar', title: t('services.serviceNameAr') },
+		{ field: 'name', title: t('services.serviceNameColumn') },
 		{ field: 'sale_price', title: t('services.price') },
 		{ field: 'is_active', title: t('services.status'), sort: false },
 		{ field: 'actions', title: t('services.actions'), sort: false },

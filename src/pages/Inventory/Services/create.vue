@@ -25,10 +25,8 @@
    
   const createFormData = ref({
     user_id: USER_ID,
-    name_ar: "",
-    name_en: "",
-    description_en: "",
-    description_ar: "",
+    name: "",
+    description: "",
     sale_price: "",
     is_service: true,
    
@@ -89,17 +87,10 @@
         <div class="intro-y box p-8">
           <div class="grid grid-cols-12 gap-6">
             <div class="col-span-6">
-              <FormLabel for="name_en">{{ $t('services.serviceNameEn') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput v-model="createFormData.name_en" id="name_en" type="text" :placeholder="$t('services.serviceNameEnPlaceholder')" :class="{ 'border-red-500': form.invalid('name_en') }" />
-              <template v-if="form.invalid('name_en')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('name_en') }}</div>
-              </template>
-            </div>
-            <div class="col-span-6">
-              <FormLabel for="nameAr">{{ $t('services.serviceNameAr') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput id="nameAr" v-model="createFormData.name_ar" type="text" :placeholder="$t('services.serviceNameArPlaceholder')" :class="{ 'border-red-500': form.invalid('name_ar') }" />
-              <template v-if="form.invalid('name_ar')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('name_ar') }}</div>
+              <FormLabel for="service-name">{{ $t('services.serviceName') }} <span class="text-danger"> *</span></FormLabel>
+              <FormInput v-model="createFormData.name" id="service-name" type="text" :placeholder="$t('services.serviceNamePlaceholder')" :class="{ 'border-red-500': form.invalid('name') || form.invalid('name_en') }" />
+              <template v-if="form.invalid('name') || form.invalid('name_en')">
+                <div class="mt-2 text-xs text-red-600">{{ form.getError('name') || form.getError('name_en') }}</div>
               </template>
             </div>
             <div class="col-span-6">
@@ -109,10 +100,9 @@
                 <div class="mt-2 text-xs text-red-600">{{ form.getError('sale_price') }}</div>
               </template>
             </div>
-            <div class="col-span-6"></div>
             <div class="col-span-6">
-              <FormLabel>{{ $t('services.descriptionEn') }}</FormLabel>
-              <FormTextarea v-model="createFormData.description_en" class="py-2 pl-4 resize-none" :rows="3" :placeholder="$t('services.descriptionEnPlaceholder')">
+              <FormLabel>{{ $t('services.descriptionSingle') }}</FormLabel>
+              <FormTextarea v-model="createFormData.description" class="py-2 pl-4 resize-none" :rows="3" :placeholder="$t('services.descriptionSinglePlaceholder')">
               </FormTextarea>
             </div>
             <div class="col-span-12 flex justify-end mt-4">

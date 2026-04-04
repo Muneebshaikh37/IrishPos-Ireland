@@ -11,10 +11,10 @@ export const STATUS_CANCELLED = "cancelled";
 // Updated to match backend service account: jaldi-19ab9
 // NOTE: You need to get the correct apiKey, messagingSenderId, appId, and measurementId
 // from Firebase Console > Project Settings > Your apps > Web app config
-export const API_KEY = "AIzaSyB5K6iXLWrN3IQpKD4AB_ndOaROoCCHjuQ"; // TODO: Get from Firebase Console for jaldi-19ab9
-export const AUTH_DOMAIN = "jaldi-19ab9.firebaseapp.com";
-export const PROJECT_ID = "jaldi-19ab9";
-export const STORAGE_BUCKET = "jaldi-19ab9.firebasestorage.app";
-export const MESSAGING_SENDER_ID = "350198239145"; // TODO: Get from Firebase Console for jaldi-19ab9
-export const APP_ID = "1:350198239145:web:3a1c87fd623a1705833eb8"; // TODO: Get from Firebase Console for jaldi-19ab9
-export const MEASUREMENT_ID = "G-QWSZTX9ETT"; // TODO: Get from Firebase Console for jaldi-19ab9 (optional)
+export const API_KEY = ""; // TODO: Get from Firebase Console for jaldi-19ab9
+export const AUTH_DOMAIN = "";
+export const PROJECT_ID = "";
+export const STORAGE_BUCKET = "";
+export const MESSAGING_SENDER_ID = ""; // TODO: Get from Firebase Console for jaldi-19ab9
+export const APP_ID = ""; // TODO: Get from Firebase Console for jaldi-19ab9
+export const MEASUREMENT_ID = ""; // TODO: Get from Firebase Console for jaldi-19ab9 (optional)

@@ -107,7 +107,7 @@ onMounted(() => {
               <tbody>
               <tr v-for="(product, index) in createStockCountForm.products" :key="product.id || index"
                   class="border-b">
-                <td class="py-3 px-4">{{ product.product?.name_en }}</td>
+                <td class="py-3 px-4">{{ product.product?.name ?? product.product?.name_en ?? product.product?.name_ar }}</td>
                 <td class="py-3 px-6">{{ product.expected }}</td>
                 <td class="py-3 px-4">{{ product.counted }}</td>
                 <td class="py-3 px-4">{{ Number(product.difference).toFixed(0) }}</td>

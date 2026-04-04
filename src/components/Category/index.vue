@@ -314,8 +314,7 @@ const productAttributes = ref([]) // Array of selected attributes with values
 const OpenAttribute = ref(false)
 const formAttributeError = reactive(new ErrorHandler())
 const CreateNewAttribute = ref({
-  name_en: "",
-  name_ar: "",
+  name: "",
   category_id: "",
   key_name: "",
   data_type: "string",
@@ -338,8 +337,7 @@ const unitOptions = [
   { value: "g", label: "g (gram)" },
 ];
 
-// Auto-generate key_name from name_en
-watch(() => CreateNewAttribute.value.name_en, (newVal) => {
+watch(() => CreateNewAttribute.value.name, (newVal) => {
   if (newVal) {
     CreateNewAttribute.value.key_name = newVal
       .toLowerCase()
@@ -607,8 +605,7 @@ const submitAttribute = async () => {
     if (result.success) {
       OpenAttribute.value = false;
       CreateNewAttribute.value = {
-        name_en: "",
-        name_ar: "",
+        name: "",
         category_id: props.createFormData.category_id,
         key_name: "",
         data_type: "string",
@@ -630,8 +627,7 @@ const modelOpenAttribute = () => {
 const modelCloseAttribute = () => {
   OpenAttribute.value = false;
   CreateNewAttribute.value = {
-    name_en: "",
-    name_ar: "",
+    name: "",
     category_id: props.createFormData.category_id,
     key_name: "",
     data_type: "string",
@@ -751,7 +747,7 @@ const modelCloseAttribute = () => {
                       <!-- Only show if not already selected by another field, or if it's the current selection -->
                       <option
                         v-if="!productAttributes.find((item, idx) => idx !== index && item && String(item.attribute_id) === String(attr.id)) || String(attr.id) === String(productAttr.attribute_id)"
-                        :value="String(attr.id)">{{ attr.name_en || '' }} {{ attr.name_ar ? `(${attr.name_ar})` : '' }}</option>
+                        :value="String(attr.id)">{{ attr.name ?? attr.name_en ?? attr.name_ar ?? '' }}</option>
                     </template>
                   </TomSelect>
                   <template v-if="form.invalid(`attributes.${index}.attribute_id`)">
@@ -762,9 +758,9 @@ const modelCloseAttribute = () => {
                 </div>
 
                 <!-- Value Field - Dynamic based on attribute data type -->
-                <div class="flex-1" v-if="productAttr.attribute && productAttr.attribute.name_en">
+                <div class="flex-1" v-if="productAttr.attribute && (productAttr.attribute.name || productAttr.attribute.name_en || productAttr.attribute.name_ar)">
                   <FormLabel>
-                    {{ productAttr.attribute?.name_en || '' }} {{ $t('category.value') }}
+                    {{ productAttr.attribute?.name ?? productAttr.attribute?.name_en ?? productAttr.attribute?.name_ar ?? '' }} {{ $t('category.value') }}
                     <span v-if="productAttr.attribute?.unit && productAttr.attribute.unit !== 'none'" class="text-xs text-slate-500">({{ productAttr.attribute.unit }})</span>
                   </FormLabel>
 
@@ -773,7 +769,7 @@ const modelCloseAttribute = () => {
                     v-if="productAttr.attribute?.data_type === 'string'"
                     v-model="productAttr.value"
                     type="text"
-                    :placeholder="$t('category.enterAttributeValue', { name: productAttr.attribute?.name_en || '' })"
+                    :placeholder="$t('category.enterAttributeValue', { name: productAttr.attribute?.name ?? productAttr.attribute?.name_en ?? productAttr.attribute?.name_ar ?? '' })"
                     :class="{
                       'border-red-500': form.invalid(`attributes.${index}.value`)
                     }"
@@ -786,7 +782,7 @@ const modelCloseAttribute = () => {
                     v-model="productAttr.value"
                     type="number"
                     step="any"
-                    :placeholder="$t('category.enterAttributeValue', { name: productAttr.attribute?.name_en || '' })"
+                    :placeholder="$t('category.enterAttributeValue', { name: productAttr.attribute?.name ?? productAttr.attribute?.name_en ?? productAttr.attribute?.name_ar ?? '' })"
                     :class="{
                       'border-red-500': form.invalid(`attributes.${index}.value`)
                     }"
@@ -948,25 +944,17 @@ const modelCloseAttribute = () => {
         <div class="text-xl text-black my-4 font-medium text-center">{{ $t('category.addNewAttribute') }}</div>
 
         <div class="grid grid-cols-12 gap-4">
-          <div class="col-span-6">
-            <FormLabel>{{ $t('category.nameEnglish') }} <span class="text-danger"> *</span></FormLabel>
-            <FormInput v-model="CreateNewAttribute.name_en" type="text" :placeholder="$t('category.enterEnglishName')" :class="{ 'border-red-500': formAttributeError.invalid('name_en') }" />
-            <template v-if="formAttributeError.invalid('name_en')">
-              <div class="mt-2 text-xs text-red-600">{{ formAttributeError.getError('name_en') }}</div>
-            </template>
-          </div>
-
-          <div class="col-span-6">
-            <FormLabel>{{ $t('category.nameArabic') }} <span class="text-danger"> *</span></FormLabel>
-            <FormInput v-model="CreateNewAttribute.name_ar" type="text" :placeholder="$t('category.enterArabicName')" :class="{ 'border-red-500': formAttributeError.invalid('name_ar') }" />
-            <template v-if="formAttributeError.invalid('name_ar')">
-              <div class="mt-2 text-xs text-red-600">{{ formAttributeError.getError('name_ar') }}</div>
+          <div class="col-span-12 sm:col-span-6">
+            <FormLabel>{{ $t('category.nameLabel') }} <span class="text-danger"> *</span></FormLabel>
+            <FormInput v-model="CreateNewAttribute.name" type="text" :placeholder="$t('category.enterName')" :class="{ 'border-red-500': formAttributeError.invalid('name') || formAttributeError.invalid('name_en') }" />
+            <template v-if="formAttributeError.invalid('name') || formAttributeError.invalid('name_en')">
+              <div class="mt-2 text-xs text-red-600">{{ formAttributeError.getError('name') || formAttributeError.getError('name_en') }}</div>
             </template>
           </div>
 
           <div class="col-span-6">
             <FormLabel>{{ $t('category.keyName') }}</FormLabel>
-            <FormInput v-model="CreateNewAttribute.key_name" type="text" :placeholder="$t('category.autoGeneratedFromEnglish')" />
+            <FormInput v-model="CreateNewAttribute.key_name" type="text" :placeholder="$t('category.autoGeneratedFromName')" />
             <p class="text-xs text-slate-500 mt-1">{{ $t('category.autoGeneratedEditable') }}</p>
           </div>
 

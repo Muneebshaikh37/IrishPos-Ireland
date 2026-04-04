@@ -36,8 +36,7 @@ const params = reactive({
 const {t, locale: i18nLocale} = useI18n();
 const rows: any = ref(null);
 const cols: any = ref([
-  { field: 'name_en', title: t('category.nameEnglish') },
-  { field: 'name_ar', title: t('category.nameArabic') },
+  { field: 'name', title: t('category.nameLabel') },
   { field: 'category', title: t('category.category') },
   { field: 'data_type', title: t('category.dataType') },
   { field: 'unit', title: t('category.unit') },
@@ -47,8 +46,7 @@ const cols: any = ref([
 // Function to update column titles based on locale
 const updateColumnTitles = () => {
   cols.value = [
-    { field: 'name_en', title: t('category.nameEnglish') },
-    { field: 'name_ar', title: t('category.nameArabic') },
+    { field: 'name', title: t('category.nameLabel') },
     { field: 'category', title: t('category.category') },
     { field: 'data_type', title: t('category.dataType') },
     { field: 'unit', title: t('category.unit') },
@@ -287,11 +285,8 @@ const ability = useAbility();
           :search="params.search"
           @change="changeServer">
 
-        <template #name_en="data">
-          {{data.value?.name_en}}
-        </template>
-        <template #name_ar="data">
-          {{data.value?.name_ar}}
+        <template #name="data">
+          {{ data.value?.name ?? data.value?.name_en ?? data.value?.name_ar }}
         </template>
         <template #category="category">
           {{ category.value.category?.name }}

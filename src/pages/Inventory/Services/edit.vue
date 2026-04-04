@@ -34,10 +34,8 @@
     sub_category_id: "",
     SubCategorySelect: "",
     image: "",
-    name_ar: "",
-    name_en: "",
-    description_en: "",
-    description_ar: "",
+    name: "",
+    description: "",
     sale_price: "",
     _method: "PUT",
     is_service: true,
@@ -56,31 +54,17 @@
         const serviceData = result.data?.data || result.data || {};
         
         // Debug: Check what description fields the backend is returning
-        console.log('Backend response - description fields:', {
-          description: serviceData.description,
-          description_en: serviceData.description_en,
-          description_ar: serviceData.description_ar,
-          allKeys: Object.keys(serviceData).filter(key => key.includes('description'))
-        });
-        
-        // Handle description fields - support both new (description_en/description_ar) and old (description) formats
-        // If description is null, treat it as empty string
-        const descriptionEn = (serviceData.description_en !== null && serviceData.description_en !== undefined && serviceData.description_en !== '')
-          ? serviceData.description_en
-          : ((serviceData.description !== null && serviceData.description !== undefined && serviceData.description !== '')
-            ? serviceData.description
-            : "");
-        const descriptionAr = "";
-        
         createFormData.value = {
           ...createFormData.value,
           category_id: serviceData.category?.id || "",
           sub_category_id: serviceData.sub_category?.id || "",
           SubCategorySelect: serviceData.sub_category?.id || "",
-          name_ar: serviceData.name_ar || "",
-          name_en: serviceData.name_en || "",
-          description_en: descriptionEn,
-          description_ar: descriptionAr,
+          name: serviceData.name ?? serviceData.name_en ?? serviceData.name_ar ?? "",
+          description:
+            serviceData.description
+            ?? serviceData.description_en
+            ?? serviceData.description_ar
+            ?? "",
           sale_price: serviceData.sale_price || "",
           image: serviceData.image || "",
         };
@@ -162,19 +146,11 @@
         <div class="intro-y box p-8">
           <div class="grid grid-cols-12 gap-6">
             <div class="col-span-6">
-              <FormLabel>{{ $t('services.serviceNameEn') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput v-model="createFormData.name_en" id="name_en" type="text" :placeholder="$t('services.serviceNameEnPlaceholder')"
-                :class="{ 'border-red-500': form.invalid('name_en') }" />
-              <template v-if="form.invalid('name_en')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('name_en') }}</div>
-              </template>
-            </div>
-            <div class="col-span-6">
-              <FormLabel>{{ $t('services.serviceNameAr') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput id="nameAr" v-model="createFormData.name_ar" type="text" :placeholder="$t('services.serviceNameArPlaceholder')"
-                :class="{ 'border-red-500': form.invalid('name_ar') }" />
-              <template v-if="form.invalid('name_ar')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('name_ar') }}</div>
+              <FormLabel for="service-name-edit">{{ $t('services.serviceName') }} <span class="text-danger"> *</span></FormLabel>
+              <FormInput v-model="createFormData.name" id="service-name-edit" type="text" :placeholder="$t('services.serviceNamePlaceholder')"
+                :class="{ 'border-red-500': form.invalid('name') || form.invalid('name_en') }" />
+              <template v-if="form.invalid('name') || form.invalid('name_en')">
+                <div class="mt-2 text-xs text-red-600">{{ form.getError('name') || form.getError('name_en') }}</div>
               </template>
             </div>
             <div class="col-span-6">
@@ -192,11 +168,10 @@
         </div>
       </template>
     </div>
-            <div class="col-span-6"></div>
             <div class="col-span-6">
-              <FormLabel>{{ $t('services.descriptionEn') }}</FormLabel>
-              <FormTextarea v-model="createFormData.description_en" class="py-2 pl-4 resize-none" :rows="3"
-                :placeholder="$t('services.descriptionEnPlaceholder')">
+              <FormLabel>{{ $t('services.descriptionSingle') }}</FormLabel>
+              <FormTextarea v-model="createFormData.description" class="py-2 pl-4 resize-none" :rows="3"
+                :placeholder="$t('services.descriptionSinglePlaceholder')">
               </FormTextarea>
             </div>
           </div>

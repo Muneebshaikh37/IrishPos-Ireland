@@ -81,12 +81,8 @@
     SubCategorySelect: "",
     sku: "",
     image: "",
-    name_ar: "",
-    name_en: "",
+    name: "",
     barcode: "",
-    description_en: "",
-    description_ar: "",
-    // Keep legacy description field for backward compatibility
     description: "",
     initial_quantity: "",
     cost_price: "",
@@ -175,10 +171,7 @@
     createFormData.value.SubCategorySelect = "";
     createFormData.value.sku = "";
     createFormData.value.image = "";
-    createFormData.value.name_ar = "";
-    createFormData.value.name_en = "";
-    createFormData.value.description_en = "";
-    createFormData.value.description_ar = "";
+    createFormData.value.name = "";
     createFormData.value.description = "";
     createFormData.value.initial_quantity = "";
     createFormData.value.cost_price = "";
@@ -261,12 +254,10 @@
             const brandId = existingProduct.brand?.id || existingProduct.brand_id || "";
    
             // Set all basic fields first
-            createFormData.value.name_en = existingProduct.name_en || "";
-            createFormData.value.name_ar = existingProduct.name_ar || "";
+            createFormData.value.name = existingProduct.name ?? existingProduct.name_en ?? existingProduct.name_ar ?? "";
             createFormData.value.sku = existingProduct.sku || createFormData.value.sku;
-            createFormData.value.description_en = existingProduct.description_en || existingProduct.description || "";
-            createFormData.value.description_ar = "";
-            createFormData.value.description = createFormData.value.description_en || existingProduct.description || "";
+            createFormData.value.description =
+              existingProduct.description ?? existingProduct.description_en ?? existingProduct.description_ar ?? "";
             createFormData.value.initial_quantity = existingProduct.initial_quantity ?? "";
             createFormData.value.cost_price = existingProduct.cost_price ?? "";
             createFormData.value.sale_price = existingProduct.sale_price ?? "";
@@ -377,12 +368,9 @@
                 if (productBankResponse.data?.data?.length > 0) {
                   isProductBankData.value = productBankResponse.data.data[0]
                   console.log("isProductBankData", isProductBankData)
-                  createFormData.value.name_ar = productBankResponse.data.data[0].name_ar
-                  createFormData.value.name_en = productBankResponse.data.data[0].name_en
-   
-                  createFormData.value.description_en = productBankResponse.data.data[0].description || "";
-                  createFormData.value.description_ar = "";
-                  createFormData.value.description = createFormData.value.description_en;
+                  const pb = productBankResponse.data.data[0]
+                  createFormData.value.name = pb.name_en ?? pb.name_ar ?? pb.name ?? ""
+                  createFormData.value.description = pb.description || ""
                   createFormData.value.initial_quantity = productBankResponse.data.data[0].initial_quantity
                   createFormData.value.cost_price = productBankResponse.data.data[0].cost_price
                   createFormData.value.sale_price = productBankResponse.data.data[0].sale_price
@@ -440,43 +428,40 @@
             </div>
             <div class="col-span-6"></div>
             <div class="col-span-6">
-              <FormLabel for="name_en">{{ $t('product.productNameEn') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput v-model="createFormData.name_en" id="name_en" type="text" :placeholder="$t('product.productNameEn')" :class="{ 'border-red-500': form.invalid('name_en') }" />
-              <template v-if="form.invalid('name_en')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('name_en') }}</div>
+              <FormLabel for="product-name">{{ $t('product.productName') }} <span class="text-danger"> *</span></FormLabel>
+              <FormInput v-model="createFormData.name" id="product-name" type="text" :placeholder="$t('product.productName')" :class="{ 'border-red-500': form.invalid('name') || form.invalid('name_en') }" />
+              <template v-if="form.invalid('name') || form.invalid('name_en')">
+                <div class="mt-2 text-xs text-red-600">{{ form.getError('name') || form.getError('name_en') }}</div>
               </template>
             </div>
+            <div class="col-span-6"></div>
             <div class="col-span-6">
-              <FormLabel for="nameAr">{{ $t('product.productNameAr') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput id="nameAr" v-model="createFormData.name_ar" type="text" :placeholder="$t('product.productNameAr') " :class="{ 'border-red-500': form.invalid('name_ar') }" />
-              <template v-if="form.invalid('name_ar')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('name_ar') }}</div>
-              </template>
-            </div>
-   
-            <div class="col-span-6">
-              <FormLabel>{{ $t('product.sku') }} <span class="text-danger"> *</span> </FormLabel>
-              <FormInput v-model="createFormData.sku" id="sku" type="text" :placeholder="$t('product.sku')" :class="{ 'border-red-500': form.invalid('sku') }" />
+              <FormLabel for="sku">{{ $t('product.sku') }} <span class="text-danger"> *</span></FormLabel>
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div class="min-w-0 flex-1">
+                  <FormInput v-model="createFormData.sku" id="sku" type="text" :placeholder="$t('product.sku')" :class="{ 'border-red-500': form.invalid('sku') }" />
+                </div>
+                <Button variant="primary" type="button" class="w-full shrink-0 py-2 shadow-md sm:w-[180px]" @click="generateSku">
+                  {{ $t('product.autoGenerateSku') }}
+                </Button>
+              </div>
               <template v-if="form.invalid('sku')">
                 <div class="mt-2 text-xs text-red-600">{{ form.getError('sku') }}</div>
               </template>
             </div>
+            <div class="col-span-6"></div>
             <div class="col-span-6">
-              <div class="pt-7">
-                <Button variant="primary" class="mr-2 py-2 shadow-md w-[180px]" @click="generateSku">
-                  {{ $t('product.autoGenerateSku') }}
-                </Button>
-              </div>
-            </div>
-            <div class="col-span-6">
-              <FormLabel>{{ $t('product.descriptionEn') }}</FormLabel>
+              <FormLabel>{{ $t('product.descriptionSingle') }}</FormLabel>
               <FormTextarea
-                v-model="createFormData.description_en"
+                v-model="createFormData.description"
                 class="py-2 pl-4 resize-none"
                 :rows="3"
-                :placeholder="$t('product.descriptionEnPlaceholder')"
+                :placeholder="$t('product.descriptionSinglePlaceholder')"
               >
               </FormTextarea>
+              <template v-if="form.invalid('description') || form.invalid('description_en')">
+                <div class="mt-2 text-xs text-red-600">{{ form.getError('description') || form.getError('description_en') }}</div>
+              </template>
             </div>
           </div>
         </div>

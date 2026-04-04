@@ -44,8 +44,7 @@ const { t } = useI18n();
 const cols: any = ref([
   { field: 'number', title: '#', sort: false },
   { field: 'image', title: t('product.imageColumn') },
-  { field: 'name_en', title: t('product.productNameEnColumn') },
-  { field: 'name_ar', title: t('product.productNameArColumn') },
+  { field: 'name', title: t('product.productNameColumn') },
   { field: 'category', title: t('product.categoryColumn'), sort: false },
   { field: 'sub_category', title: t('product.subCategoryColumn'), sort: false },
   { field: 'initial_quantity', title: t('product.stockLevelColumn') },
