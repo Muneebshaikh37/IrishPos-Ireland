@@ -1,0 +1,26 @@
+{
+  "jobs": "الوظائف",
+  "addNewJob": "إضافة وظيفة جديدة",
+  "editJob": "تعديل الوظيفة",
+  "search": "بحث...",
+  "areYouSure": "هل أنت متأكد؟",
+  "deleteConfirmation": "هل أنت متأكد أنك تريد حذف هذه الوظيفة؟",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "title": "الخدمة",
+  "customer": "العميل",
+  "worker": "الموظف",
+  "assignedAt": "تاريخ الإسناد",
+  "startedAt": "تاريخ البدء",
+  "completedAt": "تاريخ الإنهاء",
+  "salePrice": "سعر البيع",
+  "description": "الوصف",
+  "status": "الحالة",
+  "actions": "الإجراءات",
+  "enterJobTitle": "أدخل عنوان الوظيفة",
+  "enterJobDescription": "أدخل وصف الوظيفة",
+  "create": "إنشاء",
+  "update": "تحديث",
+  "assignedWorkers": "العمال المعينون"
+}
+

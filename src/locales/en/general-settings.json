@@ -1,0 +1,18 @@
+{
+  "generalSetting": "General Settings",
+  "dateTimeFormat": "Date Time Format",
+  "searchDateTimeFormat": "Search Date Time Format",
+  "defaultPaymentMethod": "Default Payment Method",
+  "searchPaymentType": "Search Payment Type",
+  "currency": "Currency",
+  "searchCurrency": "Search Currency",
+  "currencyManagedBySuperAdmin": "Currency is managed by Super Admin.",
+  "weightUnit": "Weight Unit",
+  "weightDecimalPlaces": "Weight Decimal Places",
+  "searchWeightUnit": "Search Weight Unit",
+  "priceDecimalPlaces": "Price Decimal Places",
+  "lowStockThreshold": "Low Stock Threshold",
+  "allowSaleIfCostPriceMet": "Allow Sale if cost price met",
+  "allowSaleIfQtyZero": "Allow Sale if Qty Zero",
+  "save": "Save"
+}

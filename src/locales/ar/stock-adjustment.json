@@ -1,0 +1,28 @@
+{
+    "addStockAdjustment": "إضافة تعديل المخزون",
+    "adjustmentName": "المرجع",
+    "notes": "ملاحظات",
+    "viewStockAdjustment": "عرض تعديل المخزون",
+    "stockAdjustments": "تعديلات المخزون",
+    "productName": "اسم المنتج",
+    "removeQuantity": "إزالة الكمية",
+    "availableQuantity": "الكمية المتاحة",
+    "updatedQuantity": "الكمية المحدثة",
+    "adjustmentReason": "سبب التعديل",
+    "actions": "الإجراءات",
+    "createStockAdjustment": "إنشاء تعديل المخزون",
+    "selectReason": "اختر السبب",
+    "product": "المنتج",
+    "enterProductCodeOrName": "أدخل رمز المنتج أو الاسم",
+    "noProductsMatched": "لم يتم العثور على منتجات مطابقة.",
+    "removedQuantity": "الكمية التي تمت إزالتها",
+    "reason": "السبب",
+    "date": "التاريخ",
+    "status": "الحالة",
+    "search": "بحث...",
+    "ImportFile": "ملف الاستيراد",
+    "FileUpdatesuccessful" : "تم تحديث الملف بنجاح",
+    "Effortlesslyupload" : "قم بتحميل ملفاتك وإدارتها بسهولة.",
+     "Dropfileupload": "قم بإسقاط الملفات هنا أو انقر للتحميل."
+}
+ 

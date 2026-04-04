@@ -1,0 +1,28 @@
+{
+  "supplier": "Supplier",
+  "createSupplier": "Create New Supplier",
+  "contactName": "Contact Name",
+  "phone": "Phone",
+  "email": "Email",
+  "address": "Address",
+  "status": "Status",
+  "actions": "Actions",
+  "addNewSupplier": "Add New Supplier",
+  "search": "Search...",
+  "areYouSure": "Are you sure?",
+  "deleteConfirmation": "Do you really want to delete this Suppliers?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "editSupplier": "Edit Supplier",
+  "vatNumber": "VAT Number",
+  "submit": "Submit",
+  "addSupplier": "Add Supplier",
+  "placeholder": {
+    "supplier": "Supplier",
+    "vat": "VAT Number",
+    "contactName": "Contact Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address"
+  }
+}

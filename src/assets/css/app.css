@@ -1,0 +1,212 @@
+/*
+ |--------------------------------------------------------------------------
+ | Fonts
+ |--------------------------------------------------------------------------
+ |
+ | Import all fonts used in the template, the font configuration can be
+ | seen in "tailwind.config.js".
+ |
+ | Please check this link for more details:
+ | https://tailwindcss.com/docs/theme
+ |
+ */
+@import "./fonts/_roboto.css";
+
+/*
+ |--------------------------------------------------------------------------
+ | Components
+ |--------------------------------------------------------------------------
+ |
+ | Import CSS components.
+ |
+ */
+@import "./components/base/_box.css";
+@import "./components/base/_global.css";
+@import "./components/base/_image-fit.css";
+@import "./components/base/_scrollbar-hidden.css";
+@import "./components/base/_typing-dots.css";
+@import "./components/base/_zoom-in.css";
+@import "./components/base/_intro.css";
+
+/*
+ |--------------------------------------------------------------------------
+ | TailwindCSS Directives
+ |--------------------------------------------------------------------------
+ |
+ | Import TailwindCSS directives and swipe out at build-time with all of
+ | the styles it generates based on your configured design system.
+ |
+ | Please check this link for more details:
+ | https://tailwindcss.com/docs/installation#include-tailwind-in-your-css
+ |
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+:root {
+    --clr-border: #169B62;
+  }
+
+/* Force all theme color-schemes to green accent */
+:root,
+html.default,
+html.theme-1,
+html.theme-2,
+html.theme-3,
+html.theme-4 {
+  --color-theme-1: 22 155 98 !important;
+  --color-theme-2: 22 155 98 !important;
+  --color-primary: 22 155 98 !important;
+}
+
+
+  h1, h2, h3, h4, h5, h6,p,span,div,li,ul,ol,button, a, input, textarea, select, option, label, table, th, td, tr, thead, tbody, tfoot, caption, form, fieldset, legend, img, figure, figcaption, hr, header, footer, nav, section, article, aside, main, address, blockquote, cite, q, pre, code, kbd, samp, var, abbr, acronym, small, strong, b, i, em, dfn, mark, time, sub, sup, ins, del, s, u, tt, big, strike, font, center, summary, details, menu, menuitem, dir, dl, dt, dd, hgroup, main, menu, rp, rt, ruby, section, summary, details, figure, figcaption, video, audio, canvas, embed, object, param, source, track, map, area, iframe, script, noscript, applet, embed, frameset, frame, noframes, base, basefont, meta, title, style, link, head, html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+    font-family: "DM Sans", serif !important;
+  }
+  .apexcharts-menu-item.exportSVG {
+    display: none;
+}
+.serach-remove .dropdown-input-wrap {
+   display: none;  
+}
+.border-upload .dz-clickable.dz-started {
+  border-color: red;
+}
+.m-slider--info .m-slider__bar {
+background-color: #169B62 !important;
+}
+  .main-banner {
+    background-position: inherit;
+    padding: 72px 0; 
+    border-radius: 14px;
+  }
+  .box-cborder{
+    background-position: 0 0, 0 0, 100% 0, 0 100%;
+    background-size: 1px 100%, 100% 1px, 1px 100%, 100% 1px;
+    background-repeat: no-repeat;
+  }
+  .box-cborder-h { 
+    background-image:
+        repeating-linear-gradient(0deg, var(--clr-border), var(--clr-border) 10px, transparent 10px, transparent 20px),  
+        repeating-linear-gradient(90deg, var(--clr-border), var(--clr-border) 10px, transparent 10px, transparent 20px),  
+        repeating-linear-gradient(180deg, var(--clr-border), var(--clr-border) 10px, transparent 10px, transparent 20px), 
+        repeating-linear-gradient(270deg, var(--clr-border), var(--clr-border) 10px, transparent 10px, transparent 20px);
+    background-size: 1px calc(100% + 24px), calc(100% + 24px) 1px, 1px calc(100% + 24px) , calc(100% + 24px) 1px;
+    animation: boxBorderAnimation 1s infinite linear;
+  
+    @keyframes boxBorderAnimation {
+        from { background-position:  0 0, -20px 0, 100% -20px, 0 100%; }
+        to { background-position:  0 -20px, 0 0, 100% 0, -20px 100%; }
+    }
+  }
+  footer{
+    clip-path: polygon(0 0, 100% 17%, 100% 100%, 0% 100%);
+  }
+  .bh-pagination .bh-page-item.bh-active, .bh-pagination .bh-page-item:hover{
+    border-color: #169B62 !important  ;
+    background-color: #169B62 !important;
+  }
+
+/* Global orange-to-green overrides */
+.bg-orange-50 { background-color: #ecfdf5 !important; }
+.bg-orange-100 { background-color: #d1fae5 !important; }
+.bg-orange-500 { background-color: #169B62 !important; }
+.bg-orange-600 { background-color: #15803d !important; }
+.text-orange-500 { color: #169B62 !important; }
+.text-orange-600 { color: #16a34a !important; }
+.text-orange-700 { color: #15803d !important; }
+.text-orange-800 { color: #166534 !important; }
+.border-orange-200 { border-color: #bbf7d0 !important; }
+.border-orange-500 { border-color: #169B62 !important; }
+.border-orange-600 { border-color: #16a34a !important; }
+.hover\:bg-orange-600:hover { background-color: #15803d !important; }
+.focus\:ring-orange-500:focus { --tw-ring-color: #169B62 !important; }
+.focus-visible\:ring-offset-orange-300:focus-visible { --tw-ring-offset-color: #86efac !important; }
+.checked\:bg-orange-600:checked { background-color: #169B62 !important; }
+.checked\:border-orange-600:checked { border-color: #169B62 !important; }
+.text-\[\#F96F01\], .text-\[\#f96f01\],
+.text-\[\#F96F02\], .text-\[\#f96f02\] { color: #169B62 !important; }
+.bg-\[\#F96F01\], .bg-\[\#f96f01\],
+.bg-\[\#F96F02\], .bg-\[\#f96f02\] { background-color: #169B62 !important; }
+.border-\[\#F96F01\], .border-\[\#f96f01\],
+.border-\[\#F96F02\], .border-\[\#f96f02\] { border-color: #169B62 !important; }
+.hover\:border-\[\#F96F02\]:hover, .hover\:border-\[\#f96f02\]:hover { border-color: #169B62 !important; }
+input:checked + .slider { background-color: #169B62 !important; }
+input:focus + .slider { box-shadow: 0 0 1px #169B62 !important; }
+
+  /* .new-packing-class .hi2{
+    display: none !important; 
+  } */
+  .col-span-12.upload-img .dz-progress {
+    display: none !important;
+}
+.toastify {
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: #334155 !important;
+  max-width: calc(100% - 30px);
+}
+
+/* Hide number input arrows for Chrome, Edge, and Safari */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hide number input arrows for Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+select.bh-pagesize {
+  width: 80px;
+}
+
+.dropdown-input::placeholder {
+    font-size: 12px !important;
+}
+
+/* Global fix for dropdown positioning */
+.intro-y.box,
+.box {
+  overflow: visible !important;
+}
+
+.tom-select .ts-dropdown {
+  position: absolute !important;
+}
+
+/* Ensure grid containers don't clip dropdowns */
+.grid {
+  overflow: visible !important;
+}
+
+/* Ensure all parent containers of dropdowns allow overflow */
+.col-span-6,
+.col-span-4,
+.col-span-12,
+[class*="col-span-"] {
+  overflow: visible !important;
+}
+
+/* Ensure tables don't clip dropdowns */
+table,
+table tbody,
+table thead,
+table tr,
+table td,
+table th {
+  overflow: visible !important;
+}
+
+/* Ensure datatable wrappers don't clip */
+.vue3-datatable-wrapper,
+.vue3-datatable,
+[class*="datatable"] {
+  overflow: visible !important;
+}

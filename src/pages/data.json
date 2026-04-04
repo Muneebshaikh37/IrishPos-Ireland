@@ -1,0 +1,100 @@
+[
+    {
+        "icon": "Home",
+        "title": "Dashboard",
+        "pageName": "dashboard-overview-1"
+    },
+    {
+        "icon": "Inbox",
+        "title": "Inventory",
+        "pageName": "dashboard",
+        "subMenu": [
+            {
+                "icon": "Zap",
+                "title": "Products",
+                "pageName": "All Products",
+                "active": true
+            },
+            {
+                "icon": "Zap",
+                "title": "Category",
+                "pageName": "All Product Category"
+            },
+            {
+                "icon": "Zap",
+                "title": "Brands",
+                "pageName": "Brands"
+            },
+            {
+                "icon": "Zap",
+                "title": "Stock Adjustment",
+                "pageName": "StockAdjustment"
+            },
+            {
+                "icon": "Zap",
+                "title": "Stock Count",
+                "pageName": "List Stock Count"
+            }
+        ],
+        "active": true,
+        "activeDropdown": true
+    },
+    {
+        "icon": "Tablet",
+        "title": "POS",
+        "pageName": "POS",
+        "subMenu": [
+            {
+                "icon": "Activity",
+                "title": "Daily Till",
+                "pageName": "Register"
+            },
+            {
+                "icon": "Activity",
+                "title": "Invoices",
+                "pageName": "Invoices"
+            },
+            {
+                "icon": "Activity",
+                "title": "Customers",
+                "pageName": "Customers"
+            },
+            {
+                "icon": "Activity",
+                "title": "Sales Returns",
+                "pageName": "ReturnInvoices"
+            }
+        ],
+        "active": false,
+        "activeDropdown": false
+    },
+    {
+        "icon": "Inbox",
+        "title": "Purchasing",
+        "pageName": "List supplier",
+        "subMenu": [
+            {
+                "icon": "Activity",
+                "title": "Supplier",
+                "pageName": "List supplier"
+            },
+            {
+                "icon": "Activity",
+                "title": "Purchase Invoice",
+                "pageName": "List Purchase Invoice"
+            },
+            {
+                "icon": "Activity",
+                "title": "Purchase Return",
+                "pageName": "List Purchase Return Invoice"
+            }
+        ],
+        "active": false,
+        "activeDropdown": false
+    },
+    {
+        "icon": "Settings",
+        "title": "Settings",
+        "pageName": "Setting"
+    }
+]

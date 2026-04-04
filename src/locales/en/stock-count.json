@@ -1,0 +1,40 @@
+{
+  "heading": "Stock Count",
+  "headingEdit": "Edit Stock Count",
+  "countName": "Reference",
+  "createNew": "New Stock Count",
+  "edit": "New Stock Count",
+  "searchPlaceholder": "Search...",
+  "countDate": "Count Date",
+  "status": "Status",
+  "notes": "Notes",
+  "actions": "Actions",
+  "saveDraft": "Save Draft",
+  "createNewButton": "Create Stock Count",
+  "updateNewButton": "Update Stock Count",
+  "viewStockCount": "View Stock Count",
+  "productName": "Product Name",
+  "systemInventory": "System Inventory",
+  "physicalStock": "Physical Stock",
+  "variance": "Variance",
+  "loading": "Loading...",
+  "productSearch": {
+    "scanOrTypeProduct": "Scan or Type Product",
+    "enterProductCodeOrName": "Enter product code or name",
+    "noProductsMatched": "No products matched.",
+    "searchingProducts": "Searching products..."
+  },
+  "productsList": {
+    "productName": "Product Name",
+    "systemInventory": "System Inventory",
+    "physicalStock": "Physical Stock",
+    "variance": "Variance",
+    "actions": "Actions",
+    "createNew": "Create New Stock Count",
+    "countName": "Reference",
+    "countDate": "Count Date",
+    "notes": "Notes",
+    "searchPlaceholder": "Search Stock Counts"
+  }
+}
+ 

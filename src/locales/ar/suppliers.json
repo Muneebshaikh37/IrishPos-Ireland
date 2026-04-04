@@ -1,0 +1,28 @@
+{
+  "supplier": "المورد",
+  "createSupplier": "إنشاء مورد جديد",
+  "contactName": "اسم جهة الاتصال",
+  "phone": "الهاتف",
+  "email": "البريد الإلكتروني",
+  "address": "العنوان",
+  "status": "الحالة",
+  "actions": "الإجراءات",
+  "addNewSupplier": "إضافة مورد جديد",
+  "search": "بحث...",
+  "areYouSure": "هل أنت متأكد؟",
+  "deleteConfirmation": "هل تريد حقًا حذف هذا المورد؟",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "editSupplier": "تعديل المورد",
+  "vatNumber": "رقم ضريبة القيمة المضافة",
+  "submit": "إرسال",
+  "addSupplier": "إضافة مورد",
+  "placeholder": {
+    "supplier": "المورد",
+    "vat": "رقم ضريبة القيمة المضافة",
+    "contactName": "اسم جهة الاتصال",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "address": "العنوان"
+  }
+}

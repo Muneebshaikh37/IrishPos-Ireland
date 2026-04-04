@@ -1,0 +1,14 @@
+{
+  "profile": "Company Profile",
+  "name": "Company Name",
+  "enterName": "Enter Company Name",
+  "vatNumber": "VAT Number",
+  "enterVatNumber": "Enter VAT Number",
+  "email": "Email",
+  "enterEmail": "Enter Email",
+  "phone": "Phone",
+  "enterPhone": "Enter Phone Number",
+  "address": "Company Address",
+  "enterAddress": "Enter Company Address",
+  "save": "Save"
+}

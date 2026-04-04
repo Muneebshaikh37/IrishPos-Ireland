@@ -1,0 +1,28 @@
+{
+    "addStockAdjustment": "Add Stock Adjustment",
+    "adjustmentName": "Reference",
+    "notes": "Notes",
+    "viewStockAdjustment": "View Stock Adjustment",
+    "stockAdjustments": "Stock Adjustments",
+    "productName": "Product Name",
+    "removeQuantity": "Remove Quantity",
+    "availableQuantity": "Available Quantity",
+    "updatedQuantity": "Updated Quantity",
+    "adjustmentReason": "Adjustment Reason",
+    "actions": "Actions",
+    "createStockAdjustment": "Create Stock Adjustment",
+    "selectReason": "Select Reason",
+    "product": "Product",
+    "enterProductCodeOrName": "Enter product code or name",
+    "noProductsMatched": "No products matched.",
+    "removedQuantity": "Removed Quantity",
+    "reason": "Reason",
+    "date": "Date",
+    "status": "Status",
+    "search": "Search...",
+    "ImportFile": "Import File",
+    "FileUpdatesuccessful" : "File Update successful",
+    "Effortlesslyupload" : "Effortlessly upload and manage your files.",
+    "Dropfileupload": "Drop files here or click to upload."
+}
+ 

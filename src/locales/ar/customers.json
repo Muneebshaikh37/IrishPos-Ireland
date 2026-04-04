@@ -1,0 +1,23 @@
+{
+  "customers": "العملاء",
+  "addNewCustomer": "إضافة عميل جديد",
+  "editCustomer": "تعديل العميل",
+  "search": "بحث...",
+  "areYouSure": "هل أنت متأكد؟",
+  "deleteConfirmation": "هل أنت متأكد أنك تريد حذف هذا العميل؟",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "name": "الاسم",
+  "phone": "الهاتف",
+  "status": "الحالة",
+  "actions": "الإجراءات",
+  "enterCustomerName": "أدخل اسم العميل",
+  "create": "إنشاء",
+  "add": "إضافة",
+  "update": "تحديث",
+  "addWithdrawCash": "إضافة/سحب نقدي",
+  "addWithdrawAmount": "إضافة/سحب مبلغ",
+  "amount": "المبلغ",
+  "withdraw": "سحب",
+  "notes": "ملاحظات"
+}

@@ -1,0 +1,39 @@
+{
+  "heading": "جرد المخزون",
+  "headingEdit": "تعديل جرد المخزون",
+  "countName": "المرجع",
+  "createNew": "جرد مخزون جديد",
+  "edit": "تعديل جرد المخزون",
+  "searchPlaceholder": "بحث...",
+  "countDate": "تاريخ الجرد",
+  "status": "الحالة",
+  "notes": "ملاحظات",
+  "actions": "الإجراءات",
+  "saveDraft": "حفظ كمسودة",
+  "createNewButton": "إنشاء جرد المخزون",
+  "updateNewButton": "تحديث جرد المخزون",
+  "viewStockCount": "عرض جرد المخزون",
+  "productName": "اسم المنتج",
+  "systemInventory": "المخزون في النظام",
+  "physicalStock": "المخزون الفعلي",
+  "variance": "الفرق",
+  "loading": "جارٍ التحميل...",
+  "productSearch": {
+    "scanOrTypeProduct": "امسح أو اكتب اسم المنتج",
+    "enterProductCodeOrName": "أدخل رمز المنتج أو الاسم",
+    "noProductsMatched": "لم يتم العثور على منتجات مطابقة.",
+    "searchingProducts": "جارٍ البحث عن المنتجات..."
+  },
+  "productsList": {
+    "productName": "اسم المنتج",
+    "systemInventory": "المخزون في النظام",
+    "physicalStock": "المخزون الفعلي",
+    "variance": "الفرق",
+    "actions": "الإجراءات",
+    "createNew": "إنشاء جرد مخزون جديد",
+    "countName": "المرجع",
+    "countDate": "تاريخ الجرد",
+    "notes": "ملاحظات",
+    "searchPlaceholder": "بحث في جرد المخزون"
+  }
+}

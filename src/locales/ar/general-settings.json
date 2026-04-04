@@ -1,0 +1,18 @@
+{
+  "generalSetting": "الإعدادات العامة",
+  "dateTimeFormat": "تنسيق التاريخ والوقت",
+  "searchDateTimeFormat": "البحث عن تنسيق التاريخ والوقت",
+  "defaultPaymentMethod": "طريقة الدفع الافتراضية",
+  "searchPaymentType": "البحث عن نوع الدفع",
+  "currency": "العملة",
+  "searchCurrency": "البحث عن العملة",
+  "currencyManagedBySuperAdmin": "يتم التحكم في العملة من قبل المشرف الرئيسي.",
+  "weightUnit": "وحدة الوزن",
+  "weightDecimalPlaces": "عدد المنازل العشرية للوزن",
+  "searchWeightUnit": "البحث عن وحدة الوزن",
+  "priceDecimalPlaces": "عدد المنازل العشرية للسعر",
+  "lowStockThreshold": "حد انخفاض المخزون",
+  "allowSaleIfCostPriceMet": "السماح بالبيع إذا تم تحقيق سعر التكلفة",
+  "allowSaleIfQtyZero": "السماح بالبيع إذا كانت الكمية صفر",
+  "save": "حفظ"
+}

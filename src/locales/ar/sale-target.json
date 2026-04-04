@@ -1,0 +1,13 @@
+{
+  "saleTarget" : "هدف البيع",
+  "TargetDate" : "التاريخ المستهدف",
+  "AchievedAmount" : "المبلغ المحقق",
+  "TargetAmount": "المبلغ المستهدف",
+  "setTargetAmount" :"قم بتعيين المبلغ المستهدف" ,
+  "setDate": "تعيين التاريخ",
+  "setAmount": "تعيين المبلغ",
+  "RemainingAmount": "المبلغ المتبقي",
+  "errorTargetHead": "لم يتم تعيين هدف لهذا اليوم",
+  "errorDailyTarget": "قم بتعيين هدف يومي لتبقى على المسار الصحيح",
+  "ExceededBy": "تجاوزت"
+}

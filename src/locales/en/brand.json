@@ -1,0 +1,18 @@
+{
+  "brands": "Brands",
+  "name": "Name",
+  "status": "Status",
+  "linkedProducts": "Linked Products",
+  "actions": "Actions",
+  "addNewBrand": "Add New Brand",
+  "editBrand": "Edit Brand",
+  "brandCreatedSuccess": "Brand Created Success!",
+  "checkBrandListing": "Please check Brand Listing!",
+  "labels": {
+    "search": "Search...",
+    "areYouSure": "Are you sure?",
+    "deleteConfirmation": "Do you really want to delete these records? This process cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  }
+}

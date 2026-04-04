@@ -1,0 +1,13 @@
+{
+  "saleTarget" : "Sales Target",
+  "TargetDate" : "Target Date",
+  "AchievedAmount" : "Achieved Amount",
+  "TargetAmount": "Target Amount",
+  "setTargetAmount" :"Set Target Amount",
+  "setDate": "Set Date" ,
+  "setAmount": "Set Amount",
+  "RemainingAmount": "Remaining Amount",
+  "errorTargetHead": "No Target Set For Today",
+  "errorDailyTarget": "Set a Daily Target To stay on Track",
+   "ExceededBy": "Exceeded By"
+}
