@@ -1,0 +1,63 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - staging
+      - production
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npm run build
+
+      - name: Select deployment target from branch
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "staging" ]; then
+            echo "SERVER_HOST=${{ secrets.STAGING_SERVER_HOST }}" >> "$GITHUB_ENV"
+            echo "SERVER_USER=${{ secrets.STAGING_SERVER_USER }}" >> "$GITHUB_ENV"
+            echo "SERVER_PORT=${{ secrets.STAGING_SERVER_PORT }}" >> "$GITHUB_ENV"
+            echo "SERVER_PATH=${{ secrets.STAGING_SERVER_PATH }}" >> "$GITHUB_ENV"
+            echo "SERVER_SSH_KEY=${{ secrets.STAGING_SERVER_SSH_KEY }}" >> "$GITHUB_ENV"
+          elif [ "${GITHUB_REF_NAME}" = "production" ]; then
+            echo "SERVER_HOST=${{ secrets.PRODUCTION_SERVER_HOST }}" >> "$GITHUB_ENV"
+            echo "SERVER_USER=${{ secrets.PRODUCTION_SERVER_USER }}" >> "$GITHUB_ENV"
+            echo "SERVER_PORT=${{ secrets.PRODUCTION_SERVER_PORT }}" >> "$GITHUB_ENV"
+            echo "SERVER_PATH=${{ secrets.PRODUCTION_SERVER_PATH }}" >> "$GITHUB_ENV"
+            echo "SERVER_SSH_KEY=${{ secrets.PRODUCTION_SERVER_SSH_KEY }}" >> "$GITHUB_ENV"
+          else
+            echo "Unsupported branch: ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+      - name: Configure SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SERVER_SSH_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p "${SERVER_PORT}" -H "${SERVER_HOST}" >> ~/.ssh/known_hosts
+
+      - name: Deploy dist to EC2
+        run: |
+          rsync -az --delete -e "ssh -p ${SERVER_PORT}" \
+            dist/ "${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}/"
