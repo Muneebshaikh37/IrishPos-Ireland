@@ -82,7 +82,7 @@
           <!-- Action Buttons -->
           <div class="flex justify-end gap-2 mt-4">
             <Button
-                v-if="!isEditInvoice"
+                v-if="!isEditInvoice || allowHold"
                 variant="secondary"
                 type="button"
                 @click="holdInvoice"
@@ -203,12 +203,24 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // When editing an existing invoice, the parent can opt back into showing the
+  // "Hold" button (e.g. while editing a hold invoice — user wants to add more
+  // items and re-hold rather than pay immediately).
+  allowHold: {
+    type: Boolean,
+    default: false,
+  },
   services: {
     type: Array,
     default: () => [],
   },
   invoiceId: {
     type: String,
+    default: null,
+  },
+  // Pre-selected customer coming from a booking check-in: { id, name }
+  preselectedCustomer: {
+    type: Object,
     default: null,
   },
 });
@@ -274,9 +286,15 @@ watch(
             amount: 0
           }
         };
-        // Reset customer selection
-        customerQuery.value = "";
-        selectedCustomerId.value = null;
+        // Pre-fill customer from booking check-in, or reset to empty
+        if (props.preselectedCustomer?.id && props.preselectedCustomer?.name) {
+          customerQuery.value = props.preselectedCustomer.name;
+          selectedCustomerId.value = props.preselectedCustomer.id;
+          emit('select-customer', props.preselectedCustomer.id);
+        } else {
+          customerQuery.value = "";
+          selectedCustomerId.value = null;
+        }
         customerError.value = false;
         filteredCustomers.value = [];
         requireCustomer.value = false;

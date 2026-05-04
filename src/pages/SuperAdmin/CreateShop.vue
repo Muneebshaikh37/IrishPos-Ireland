@@ -80,7 +80,7 @@
               v-model="formData.phone"
               :noSearch="true"
               v-model:country-code="countryCode"
-              :onlyCountries="['SA']"
+              :onlyCountries="['IE']"
               :placeholder="$t('superadmin.createShop.phonePlaceholder')"
               class="w-full"
               @update="phoneResults = $event"
@@ -101,19 +101,6 @@
           <p v-if="errors.address" class="text-red-500 text-sm mt-1">{{ errors.address[0] }}</p>
         </div>
 
-        <!-- VAT Number -->
-        <div class="md:col-span-6">
-          <FormLabel>{{ $t('superadmin.createShop.vatNumber') }}</FormLabel>
-          <FormInput
-            v-model="formData.vat_number"
-            type="text"
-            maxlength="15"
-            :placeholder="$t('superadmin.createShop.vatNumberPlaceholder')"
-            :class="errors.vat_number ? 'border-red-500' : ''"
-          />
-          <p v-if="errors.vat_number" class="text-red-500 text-sm mt-1">{{ errors.vat_number[0] }}</p>
-        </div>
-
         <!-- Currency -->
         <div class="md:col-span-6">
           <FormLabel>{{ $t('superadmin.createShop.currency') }} *</FormLabel>
@@ -128,49 +115,6 @@
           <p v-if="errors.currency_code" class="text-red-500 text-sm mt-1">{{ errors.currency_code[0] }}</p>
         </div>
 
-        <!-- Package Selection -->
-        <div class="md:col-span-6">
-          <FormLabel>{{ $t('superadmin.createShop.package') }}</FormLabel>
-          <FormSelect
-            v-model="formData.package_id"
-            :class="errors.package_id ? 'border-red-500' : ''"
-          >
-            <option value="">{{ $t('superadmin.createShop.selectPackage') }}</option>
-            <option v-for="pkg in packages" :key="pkg.id" :value="pkg.id">
-              {{ pkg.name }} - {{ formatPrice(pkg.price) }} / {{ getBillingFrequency(pkg) }}
-            </option>
-          </FormSelect>
-          <p v-if="errors.package_id" class="text-red-500 text-sm mt-1">{{ errors.package_id[0] }}</p>
-        </div>
-
-        <!-- Skip Payment (only if package selected) -->
-        <div v-if="formData.package_id" class="md:col-span-12">
-          <FormSwitch>
-            <FormCheck.Input
-              id="skip_payment"
-              v-model="formData.skip_payment"
-              type="checkbox"
-            />
-            <FormCheck.Label htmlFor="skip_payment">
-              {{ $t('superadmin.createShop.skipPayment') }}
-            </FormCheck.Label>
-          </FormSwitch>
-          <p class="text-sm text-gray-600 mt-1">
-            {{ $t('superadmin.createShop.skipPaymentDescription') }}
-          </p>
-        </div>
-
-        <!-- Notes -->
-        <div class="md:col-span-12">
-          <FormLabel>{{ $t('superadmin.createShop.notes') }}</FormLabel>
-          <FormTextarea
-            v-model="formData.notes"
-            :placeholder="$t('superadmin.createShop.notesPlaceholder')"
-            rows="3"
-            :class="errors.notes ? 'border-red-500' : ''"
-          />
-          <p v-if="errors.notes" class="text-red-500 text-sm mt-1">{{ errors.notes[0] }}</p>
-        </div>
       </div>
 
       <!-- Form Actions -->
@@ -199,16 +143,15 @@ import { useRouter, RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import superAdminApi from '@/network/modules/superadmin';
-import packagesApi from '@/network/modules/packages';
 import { handleResponse, handleError } from '@/network/api/responseHandler';
-import { FormLabel, FormInput, FormTextarea, FormSelect, FormSwitch, FormCheck } from '@/components/Base/Form';
+import { FormLabel, FormInput, FormTextarea, FormSelect } from '@/components/Base/Form';
 import Button from '@/components/Base/Button';
 import Lucide from '@/components/Base/Lucide';
 import LoadingIcon from '@/components/Base/LoadingIcon';
 import toast from '@/stores/utility/toast';
 import pan from '@/stores/pan';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
-import { formatMoney, CURRENCY_OPTIONS, getCurrencySymbol } from '@/utils/currency';
+import { CURRENCY_OPTIONS, getCurrencySymbol } from '@/utils/currency';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -241,58 +184,19 @@ const formData = ref({
   password_confirmation: '',
   phone: '',
   address: '',
-  vat_number: '',
   currency_code: 'EUR',
-  package_id: '',
-  skip_payment: false,
-  notes: '',
 });
 
 const errors = ref({});
 const isSubmitting = ref(false);
 const isPasswordVisible = ref(false);
 const isConfirmPasswordVisible = ref(false);
-const packages = ref([]);
-const countryCode = ref('SA');
+const countryCode = ref('IE');
 const phoneResults = ref(null);
 const currencyOptions = CURRENCY_OPTIONS.map((code) => ({
   code,
   label: `${code} (${getCurrencySymbol(code)})`,
 }));
-
-const fetchPackages = async () => {
-  try {
-    const response = await packagesApi.listPackages({
-      superAdminId: superAdminId.value,
-      is_active: true, // Only get active packages
-      limit: 100, // Get all active packages
-      page: 1,
-    });
-    const result = handleResponse(response);
-    if (result.success) {
-      // Handle paginated response - data might be in result.data.data or result.data
-      const packagesData = result.data?.data || result.data || [];
-      packages.value = Array.isArray(packagesData) ? packagesData : [];
-    }
-  } catch (error) {
-    handleError(error);
-    toast().fry(pan.error(t('superadmin.createShop.failedToLoadPackages')));
-  }
-};
-
-const formatPrice = (price) => {
-  return formatMoney(price || 0);
-};
-
-const getBillingFrequency = (pkg) => {
-  const typeMap = {
-    daily: 'Daily',
-    weekly: 'Weekly',
-    monthly: 'Monthly',
-    annual: 'Annual',
-  };
-  return typeMap[pkg.duration_type] || 'Monthly';
-};
 
 const handleSubmit = async () => {
   if (!superAdminId.value) {
@@ -306,7 +210,7 @@ const handleSubmit = async () => {
   try {
     // Format phone number from MazPhoneNumberInput
     const phone = phoneResults.value?.nationalNumber || formData.value.phone;
-    const countryCodeValue = phoneResults.value ? `+${phoneResults.value.countryCallingCode}` : '+966';
+    const countryCodeValue = phoneResults.value ? `+${phoneResults.value.countryCallingCode}` : '+353';
 
     const payload = {
       super_admin_id: superAdminId.value,
@@ -317,24 +221,8 @@ const handleSubmit = async () => {
       phone: phone,
       country_code: countryCodeValue,
       address: formData.value.address,
-      vat_number: formData.value.vat_number,
       currency_code: formData.value.currency_code,
-      skip_payment: formData.value.package_id ? formData.value.skip_payment : false,
     };
-
-    // Remove package_id if not selected
-    if (!formData.value.package_id) {
-      delete payload.package_id;
-    } else {
-      payload.package_id = formData.value.package_id;
-    }
-
-    // Add notes if provided
-    if (formData.value.notes) {
-      payload.notes = formData.value.notes;
-    }
-
-    console.log('Creating shop with payload:', { ...payload, password: '***', password_confirmation: '***' });
     console.log('SuperAdmin ID being sent:', superAdminId.value);
     
     const response = await superAdminApi.createShop(payload);
@@ -347,30 +235,22 @@ const handleSubmit = async () => {
       toast().fry(pan.success(t('superadmin.createShop.shopCreatedSuccess')));
       router.push({ name: 'SuperAdminShops' });
     } else {
-      console.error('Shop creation failed:', result);
-      if (result.errors) {
+      const hasFieldErrors = result.errors && Object.keys(result.errors).length > 0;
+      if (hasFieldErrors) {
         errors.value = result.errors;
-        // Show first error message
         const firstError = Object.values(result.errors)[0];
-        if (Array.isArray(firstError) && firstError.length > 0) {
-          toast().fry(pan.error(firstError[0]));
-        }
+        toast().fry(pan.error(Array.isArray(firstError) ? firstError[0] : firstError));
       } else {
         toast().fry(pan.error(result.message || t('superadmin.createShop.failedToCreate')));
       }
     }
   } catch (error) {
-    console.error('Shop creation error:', error);
     const errorResult = handleError(error);
-    console.error('Error result:', errorResult);
-    
-    if (errorResult.errors) {
+    const hasFieldErrors = errorResult.errors && Object.keys(errorResult.errors).length > 0;
+    if (hasFieldErrors) {
       errors.value = errorResult.errors;
-      // Show first error message
       const firstError = Object.values(errorResult.errors)[0];
-      if (Array.isArray(firstError) && firstError.length > 0) {
-        toast().fry(pan.error(firstError[0]));
-      }
+      toast().fry(pan.error(Array.isArray(firstError) ? firstError[0] : firstError));
     } else {
       toast().fry(pan.error(errorResult.message || t('superadmin.createShop.failedToCreate')));
     }
@@ -415,7 +295,6 @@ watch(locale, () => {
 });
 
 onMounted(() => {
-  fetchPackages();
   translateCountryCodeText();
 });
 </script>

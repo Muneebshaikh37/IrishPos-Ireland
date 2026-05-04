@@ -28,7 +28,7 @@
               v-model:country-code="countryCode"
               :error="form.invalid('phone')"
               :noValidationSuccess="true"
-              :onlyCountries="['SA']"
+              :onlyCountries="['IE']"
               class="w-full"
               @update="results = $event"
           />
@@ -79,7 +79,7 @@ const emits = defineEmits(["close", "created"]);
 
 const show = ref(props.show);
 const customer = ref({ name: "", phone: "" });
-const countryCode = ref("SA");
+const countryCode = ref("IE");
 const results = ref();
 const isLoading = ref(false);
 

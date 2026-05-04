@@ -85,6 +85,10 @@ const props = defineProps({
   hasError: {
     type: Boolean,
     default: false
+  },
+  multiple: {
+    type: Boolean,
+    default: true
   }
 });
 
@@ -118,13 +122,21 @@ const toggleWorker = (workerId) => {
   const workerIdStr = String(workerId);
   const currentValue = [...props.modelValue];
   const index = currentValue.indexOf(workerIdStr);
-  
-  if (index > -1) {
-    currentValue.splice(index, 1);
+
+  if (props.multiple) {
+    if (index > -1) {
+      currentValue.splice(index, 1);
+    } else {
+      currentValue.push(workerIdStr);
+    }
   } else {
-    currentValue.push(workerIdStr);
+    if (index > -1) {
+      currentValue.splice(index, 1);
+    } else {
+      currentValue.splice(0, currentValue.length, workerIdStr);
+    }
   }
-  
+
   emit('update:modelValue', currentValue);
 };
 
@@ -255,8 +267,8 @@ input[type="checkbox"]:checked {
   background-size: 70% 70%;
   background-position: center;
   background-repeat: no-repeat;
-  border-color: #f97316;
-  background-color: #f97316;
+  border-color: rgb(var(--color-primary));
+  background-color: rgb(var(--color-primary));
 }
 
 input[type="checkbox"] {
@@ -270,7 +282,7 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:hover {
-  border-color: #f97316;
+  border-color: rgb(var(--color-primary));
 }
 </style>
 

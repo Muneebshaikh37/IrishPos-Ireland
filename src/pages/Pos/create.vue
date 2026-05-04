@@ -46,9 +46,6 @@
                     class="w-full px-4 py-2 border rounded-lg   bg-white"
                     @input="handleManualAmountInput"
                 />
-                <span class="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#F96F01] font-semibold bg-white">
-                SR
-              </span>
                 <template v-if="form.invalid('opening_balance')">
                   <div class="mt-2 text-sm text-red-600">{{ form.getError('opening_balance') }}</div>
                 </template>
@@ -73,47 +70,6 @@
           </div>
         </div>
 
-
-        <!-- Denominations Table -->
-        <div class="mt-8 border border-gray-200 rounded-lg">
-          <table class="w-full text-left border border-gray-200 rounded-lg overflow-hidden mb-6">
-            <thead>
-            <tr class="bg-gray-100 border-b">
-              <th class="py-3 px-4 text-gray-700 font-medium">Notes</th>
-              <th class="py-3 px-4 text-gray-700 font-medium">Count</th>
-              <th class="py-3 px-4 text-gray-700 font-medium">Coins</th>
-              <th class="py-3 px-4 text-gray-700 font-medium">Count</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(note, index) in Math.max(notes.length, coins.length)" :key="'denomination-' + index"
-                class="">
-              <td class="py-3 px-4">{{ notes[index]?.value ?? '' }} SR</td>
-              <td class="py-3 px-4">
-                <FormInput
-                    v-if="index < notes.length"
-                    type="number"
-                    v-model.number="notes[index].count"
-                    min="0"
-                    class="w-full px-4 py-2 border rounded-lg  "
-                    @input="updateOpeningAmount"
-                />
-              </td>
-              <td class="py-3 px-4">{{ coins[index]?.value ?? '' }}</td>
-              <td class="py-3 px-4">
-                <FormInput
-                    v-if="index < coins.length"
-                    type="number"
-                    v-model.number="coins[index].count"
-                    min="0"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none  "
-                    @input="updateOpeningAmount"
-                />
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
     </div>
   </div>
@@ -138,10 +94,7 @@ const USER_ID = authStore.getUserId;
 const {
   registerName,
   manualOpeningAmount,
-  notes,
-  coins,
   isValid,
-  updateOpeningAmount,
   validateForm,
   handleManualAmountInput,
 } = useFormUtils();

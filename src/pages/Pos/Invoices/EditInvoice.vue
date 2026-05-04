@@ -58,6 +58,7 @@
         :isLoading="isLoading"
         :totalSale="totalAfterDiscount"
         :isEditInvoice="true"
+        :allowHold="invoiceStatus === 'hold'"
         :services="services"
         :invoiceId="props.invoiceId"
         @close="closeDialog"
@@ -118,6 +119,9 @@ const goBack = () => { router.back(); };
 
 const products = ref([]);
 const services = ref([]);
+// Track the currently loaded invoice's status so we can keep the "Hold" button
+// available when editing a held invoice (user can add more items + hold again).
+const invoiceStatus = ref(null);
 const additionalDiscountPercent = ref( 0);
 const additionalDiscountFixed = ref(0);
 const discountMode = ref("percent"); // "percent" or "fixed"
@@ -407,13 +411,17 @@ const fetchInvoiceDetails = async (invoiceId) => {
 
     const response = await httpClient.get(import.meta.env.VITE_PUBLIC_API_URL_POS + `/invoices/${invoiceId}`);
     const result = handleResponse(response);
-    const invoiceDetails = result.data.data;
-    if (result.success)
+    // The POS InvoiceController::show returns the invoice directly (no `data` envelope),
+    // but other endpoints sometimes wrap it — accept both shapes.
+    const invoiceDetails = result?.data?.data ?? result?.data;
+    if (result.success && invoiceDetails)
     {
       additionalDiscountFixed.value = invoiceDetails.invoice_discount || 0;
       registerID.value = invoiceDetails.register_id
+      invoiceStatus.value = invoiceDetails.status || null;
 
-      invoiceDetails.items.forEach((item) => {
+      const itemsList = Array.isArray(invoiceDetails.items) ? invoiceDetails.items : [];
+      itemsList.forEach((item) => {
         // Check if item is a service - check multiple possible fields
         // Also check product store to see if the product itself is a service
         const productFromStore = productStore.products.find(p => p.id === item.product_id);
@@ -484,9 +492,17 @@ const fetchInvoiceDetails = async (invoiceId) => {
             taskStatus = item.assigned_worker.task_status;
           }
 
+          // The InvoiceController eager-loads `items.product`, so the canonical
+          // name lives on the relation. Fall back to other shapes for safety.
+          const resolvedName = item.product?.name_en
+            ?? item.product_name_en
+            ?? item.name_en
+            ?? productFromStore?.name_en
+            ?? '';
+
           const service = {
             id: item.product_id,
-            name_en: item.product_name_en,
+            name_en: resolvedName,
             sale_price: item.unit_price,
             discount: calculateDiscountPercentage(1, item.unit_price, item.discount),
             totalPrice: item.total,
@@ -495,10 +511,16 @@ const fetchInvoiceDetails = async (invoiceId) => {
           };
           addServiceToInvoice(service);
         } else {
+          const resolvedName = item.product?.name_en
+            ?? item.product_name_en
+            ?? item.name_en
+            ?? productFromStore?.name_en
+            ?? '';
+
           // Handle as product - ensure it's not a service
           const product = {
             id: item.product_id,
-            name_en: item.product_name_en,
+            name_en: resolvedName,
             sale_price: item.unit_price,
             vat: item.vat_amount,
             quantity: item.quantity,

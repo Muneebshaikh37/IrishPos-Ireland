@@ -129,6 +129,79 @@ export default {
     if (end_date) query.set('end_date', end_date);
     return superAdminHttp.get(`/analytics/revenue?${query.toString()}`);
   },
+
+  // ── Packages (Product Owner) ───────────────────────────────────────────────
+
+  /**
+   * List all packages (paginated) — for Product Owner management screens.
+   * @param {Object} params
+   */
+  listPackages({ search = '', limit = 10, page = 1 } = {}) {
+    const query = new URLSearchParams();
+    if (search) query.set('search', search);
+    query.set('limit', String(limit));
+    query.set('page', String(page));
+    return superAdminHttp.get(`/packages?${query.toString()}`);
+  },
+
+  // ── Product Owner ──────────────────────────────────────────────────────────
+
+  /**
+   * Create a new Super Admin with a package assignment.
+   * @param {Object} payload - { name, email, password, package_id, phone?, address? }
+   */
+  createSuperAdmin(payload) {
+    return superAdminHttp.post('/product-owner/super-admins', payload);
+  },
+
+  /**
+   * Update a Super Admin's details and/or package.
+   * @param {string} id
+   * @param {Object} payload
+   */
+  updateSuperAdmin(id, payload) {
+    return superAdminHttp.put(`/product-owner/super-admins/${id}`, payload);
+  },
+
+  listSuperAdmins({ search = '', limit = 10, page = 1 } = {}) {
+    const query = new URLSearchParams();
+    if (search) query.set('search', search);
+    query.set('limit', String(limit));
+    query.set('page', String(page));
+    return superAdminHttp.get(`/product-owner/super-admins?${query.toString()}`);
+  },
+
+  getSuperAdmin(id) {
+    return superAdminHttp.get(`/product-owner/super-admins/${id}`);
+  },
+
+  toggleSuperAdminActivation(id) {
+    return superAdminHttp.patch(`/product-owner/super-admins/${id}/toggle-activation`);
+  },
+
+  // Product Owner: list ALL shops (optionally filtered by super_admin_id)
+  listAllShops({ superAdminId = '', search = '', limit = 10, page = 1 } = {}) {
+    const query = new URLSearchParams();
+    if (superAdminId) query.set('super_admin_id', superAdminId);
+    if (search) query.set('search', search);
+    query.set('limit', String(limit));
+    query.set('page', String(page));
+    return superAdminHttp.get(`/shops?${query.toString()}`);
+  },
+
+  // ── Shop Module Settings ───────────────────────────────────────────────────
+
+  getShopModules(shopId) {
+    return superAdminHttp.get(`/shops/${shopId}/modules`);
+  },
+
+  toggleShopModule(shopId, moduleId, isEnabled) {
+    return superAdminHttp.patch(`/shops/${shopId}/modules/${moduleId}`, { is_enabled: isEnabled });
+  },
+
+  bulkUpdateShopModules(shopId, modules) {
+    return superAdminHttp.put(`/shops/${shopId}/modules`, { modules });
+  },
 };
 
 

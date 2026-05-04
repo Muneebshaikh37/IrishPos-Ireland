@@ -59,11 +59,11 @@ const isfetchVat = async () => {
   }
 };
 onMounted(() => {
-  const ability = useAbility(); 
+  const ability = useAbility();
   console.log("ability", ability)
-  // if (ability.can('update', 'taxmanagement')) { 
+  // if (ability.can('update', 'taxmanagement')) {
   //   isfetchVat();
-  // }  
+  // }
   isfetchVat();
 });
 
@@ -90,7 +90,7 @@ watch(
 				<h2 class="mr-auto text-lg font-semibold absolute -top-3.5 bg-white px-2">{{ $t('tax-management.headingTax') }}</h2>
 		</div>
     <div class="col-span-6">
-      <FormLabel> {{ $t('tax-management.vat') }} <span class="text-danger "> *</span></FormLabel>
+      <FormLabel> Tax <span class="text-danger "> *</span></FormLabel>
       <div class="flex item-center justify-center">
         <FormInput id="subject_to_vat" type="number" min="0" step="0.01" v-model="TexFormData.subject_to_vat" placeholder=""
                    class="rounded-r-none" :class="{'border-red-500': form.invalid('subject_to_vat')}" />
@@ -99,24 +99,6 @@ watch(
       <template v-if="form.invalid('subject_to_vat')">
         <div class="mt-2 text-xs text-red-600">{{ form.getError('subject_to_vat') }}</div>
       </template>
-    </div>
-    <div class="col-span-6">
-      <FormLabel>{{ $t('tax-management.subjectToNoTax') }}</FormLabel>
-      <div class="flex item-center justify-center">
-        <FormInput id="name_en" v-model="TexFormData.subject_to_no_vat" type="text" placeholder=""
-                   disabled="" class="rounded-r-none" :class="{'border-red-500': form.invalid('subject_to_no_vat')}" />
-        <p class="bg-gray-100 flex text-base items-center justify-center w-[55px]   border border-slate-200 shadow-sm rounded-r-md rounded-l-none"> % </p>
-      </div>
-      <template v-if="form.invalid('subject_to_no_vat')">
-        <div class="mt-2 text-xs text-red-600">{{ form.getError('subject_to_no_vat') }}</div>
-      </template>
-
-    </div>
-
-    <div class="col-span-3">
-
-      <FormSwitch.Label htmlFor="zatca" class="text-sm text-gray-500"> {{ $t('tax-management.zatca') }} </FormSwitch.Label>
-      <FormSwitch.Input id="zatca" v-model="isZatcaChecked" :checked="TexFormData.is_zatca === 1" class="ml-3 mr-0" type="checkbox" disabled />
     </div>
     <div class="mt-3 col-span-12">
       <div class="flex items-center gap-6">
@@ -128,25 +110,15 @@ watch(
           {{ $t('tax-management.save') }}
         </template>
       </Button>
-    
+
 
       </div>
-    </div>
-  </div>
-  <div class="border border-slate-200 rounded-md relative px-4 pb-5 mt-10">
-    <h2 class="mr-auto text-lg font-semibold absolute -top-4 bg-white px-2">{{ $t('tax-management.vatFilling') }}</h2>
-    <div class="mt-6">
-      <Button variant="primary" type="button" class="  mt-4"  >
-        <a href="https://zatca.gov.sa/en/eServices/Pages/eServices_009.aspx" target="_blank">
-          {{ $t('tax-management.vatFilling') }}
-        </a>
-      </Button>
     </div>
   </div>
   </div>
   <div v-else>
 <AccessDeined/>
   </div>
- 
+
 
 </template>

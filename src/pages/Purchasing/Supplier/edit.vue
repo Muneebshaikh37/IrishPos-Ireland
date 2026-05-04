@@ -28,7 +28,7 @@ const createFormData = ref({
   email: "",
   address: "",
   vat: "",
-  country_code: "+966",
+  country_code: "+353",
   phone: "",
   _method: "PUT",
 })
@@ -36,13 +36,13 @@ const createFormData = ref({
 // Phone number formatting
 const phoneDisplay = ref("");
 
-// Format phone number as user types: 5XX XXX XXXX (without +966 prefix in input)
+// Format phone number as user types (without +353 prefix in input)
 const formatPhoneNumber = (value) => {
 	// Remove all non-numeric characters
 	const numbers = value.replace(/\D/g, '');
 	
-	// Remove leading 966 if user types it
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	// Remove leading 353 if user types it
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	
 	// Limit to 9 digits (Saudi phone number format: 5XX XXX XXXX)
 	const limitedNumbers = cleanNumbers.substring(0, 9);
@@ -70,8 +70,8 @@ const formatPhoneFromApi = (phoneValue) => {
 	if (!phoneValue) return '';
 	// Remove all non-numeric characters
 	const numbers = phoneValue.toString().replace(/\D/g, '');
-	// Remove leading 966 if present
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	// Remove leading 353 if present
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	// Format for display
 	return formatPhoneNumber(cleanNumbers);
 };
@@ -90,9 +90,9 @@ const handlePhoneInput = (event) => {
 	const formatted = formatPhoneNumber(inputValue);
 	phoneDisplay.value = formatted;
 	
-	// Store clean numeric value (just the 9 digits, without 966)
+	// Store clean numeric value (without 353)
 	const numbers = inputValue.replace(/\D/g, '');
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	createFormData.value.phone = cleanNumbers.substring(0, 9);
 	
 	// Calculate new cursor position
@@ -127,7 +127,7 @@ const handlePhonePaste = (event) => {
 	phoneDisplay.value = formatted;
 	
 	const numbers = pastedData.replace(/\D/g, '');
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	createFormData.value.phone = cleanNumbers.substring(0, 9);
 	
 	// Update the input value
@@ -156,10 +156,10 @@ const handlePhoneKeydown = (event) => {
 	}
 };
 
-// Get clean phone number for submission (966XXXXXXXXX)
+// Get clean phone number for submission (353XXXXXXXXX)
 const getCleanPhoneNumber = () => {
 	const phone = createFormData.value.phone || '';
-	return '966' + phone;
+	return '353' + phone;
 };
 
 const isloading = ref(false)
@@ -180,9 +180,9 @@ const fetchSupplier = async () => {
       // Initialize phone display from API value
       if (createFormData.value.phone) {
         phoneDisplay.value = formatPhoneFromApi(createFormData.value.phone);
-        // Store clean 9 digits without 966
+        // Store clean digits without 353
         const numbers = createFormData.value.phone.toString().replace(/\D/g, '');
-        const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+        const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
         createFormData.value.phone = cleanNumbers.substring(0, 9);
       }
       //   toast().fry(pan.supplier.success(result.message))
@@ -201,7 +201,7 @@ const submitEditSupplier = async () => {
     // Prepare payload with clean phone number
     const payload = {
       ...createFormData.value,
-      phone: getCleanPhoneNumber() // Store as 966XXXXXXXXX
+      phone: getCleanPhoneNumber() // Store as 353XXXXXXXXX
     };
     console.log(payload)
     const response = await httpClient.post(`${import.meta.env.VITE_PUBLIC_SUPPLIER_API_URL}/suppliers/${route.params.uuid}?user_id=${USER_ID}`, payload)
@@ -280,7 +280,7 @@ onMounted(() => {
             <FormLabel>{{ $t('suppliers.phone') }} <span class="text-danger "> *</span></FormLabel>
             <div class="flex item-center justify-center">
               <p class="bg-gray-100 flex items-center justify-center w-[55px] text-sm border border-slate-200 shadow-sm rounded-l-md rounded-r-none   ">
-                +966</p>
+                +353</p>
               <FormInput 
                 id="phone" 
                 :value="phoneDisplay" 

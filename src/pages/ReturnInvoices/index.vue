@@ -128,6 +128,7 @@ import httpClient from "@/network/api/httpClient";
 import { Dialog } from "@/components/Base/Headless";
 import Urlbarcode from "@/assets/images/landing-page/barcode.jpg";
 import { decimalFormat } from "@/helpers/commonHelper";
+import { formatDateTime } from "@/utils/helper";
 import InvoiceSkeleton from "@/components/globel/Skeleton/InvoiceSkeleton.vue";
 import { useAbility } from "@casl/vue";
 import { useAuthStore } from "@/stores/auth";
@@ -157,7 +158,7 @@ const { rows: returnRowsRaw, totalRows, loading, params, fetchData, changeServer
 const rows = computed(() =>
   (returnRowsRaw.value || []).map((r: any) => ({
     ...r,
-    date: r.date ?? r.created_at ?? "",
+    date: formatDateTime(r.date ?? r.created_at ?? ""),
     customer_name: r.customer_name ?? "",
   }))
 );

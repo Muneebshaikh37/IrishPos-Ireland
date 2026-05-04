@@ -125,8 +125,8 @@ watch(activeTab, (newTab) => {
 }
 
 .tab.active {
-  color: #ed8936;
-  border-bottom-color: #ed8936;
+  color: rgb(var(--color-primary));
+  border-bottom-color: rgb(var(--color-primary));
 }
 
 .tab-content {

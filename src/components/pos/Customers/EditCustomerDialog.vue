@@ -27,7 +27,7 @@
                 v-model="customer.phone"
                 :noSearch="true"
                 v-model:country-code="countryCode"
-                :onlyCountries="['SA']"
+                :onlyCountries="['IE']"
                 :error="form.invalid(`phone`)"
                 :noValidationSuccess="true"
                 class="w-full"
@@ -86,7 +86,7 @@ onMounted(() => {
 const show = ref(props.show);
 const customer = ref({ ...props.customer });
 const isLoading = ref(false);
-const countryCode = ref('SA');
+const countryCode = ref('IE');
 
 const form = reactive(new ErrorHandler());
 

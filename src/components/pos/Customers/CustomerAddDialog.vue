@@ -22,7 +22,7 @@
               v-model="customerPhone"
               :noSearch="true"
               v-model:country-code="countryCode"
-              :onlyCountries="['SA']"
+              :onlyCountries="['IE']"
               class="w-full"
               @update="results = $event"
           />
@@ -74,7 +74,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'customer-added']);
-const countryCode = ref("SA");
+const countryCode = ref("IE");
 const results = ref();
 // Customer form fields
 const customerName = ref('');

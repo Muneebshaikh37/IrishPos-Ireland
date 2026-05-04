@@ -85,7 +85,7 @@
               v-model="formData.phone"
               :noSearch="true"
               v-model:country-code="countryCode"
-              :onlyCountries="['SA']"
+              :onlyCountries="['IE']"
               :placeholder="$t('superadmin.editShop.phonePlaceholder')"
               class="w-full"
               @update="phoneResults = $event"
@@ -106,19 +106,6 @@
           <p v-if="errors.address" class="text-red-500 text-sm mt-1">{{ errors.address[0] }}</p>
         </div>
 
-        <!-- VAT Number -->
-        <div class="md:col-span-6">
-          <FormLabel>{{ $t('superadmin.editShop.vatNumber') }}</FormLabel>
-          <FormInput
-            v-model="formData.vat_number"
-            type="text"
-            maxlength="15"
-            :placeholder="$t('superadmin.editShop.vatNumberPlaceholder')"
-            :class="errors.vat_number ? 'border-red-500' : ''"
-          />
-          <p v-if="errors.vat_number" class="text-red-500 text-sm mt-1">{{ errors.vat_number[0] }}</p>
-        </div>
-
         <!-- Currency -->
         <div class="md:col-span-6">
           <FormLabel>{{ $t('superadmin.editShop.currency') }} *</FormLabel>
@@ -133,62 +120,6 @@
           <p v-if="errors.currency_code" class="text-red-500 text-sm mt-1">{{ errors.currency_code[0] }}</p>
         </div>
 
-        <!-- Package Selection -->
-        <div class="md:col-span-6">
-          <FormLabel>{{ $t('superadmin.editShop.package') }}</FormLabel>
-          <FormSelect
-            v-model="formData.package_id"
-            :class="errors.package_id ? 'border-red-500' : ''"
-          >
-            <option value="">{{ $t('superadmin.editShop.selectPackage') }}</option>
-            <option v-for="pkg in packages" :key="pkg.id" :value="pkg.id">
-              {{ pkg.name }} - {{ formatPrice(pkg.price) }} / {{ getBillingFrequency(pkg) }}
-            </option>
-          </FormSelect>
-          <p v-if="errors.package_id" class="text-red-500 text-sm mt-1">{{ errors.package_id[0] }}</p>
-        </div>
-
-        <!-- Skip Payment (only if package selected) -->
-        <div v-if="formData.package_id" class="md:col-span-12">
-          <FormSwitch>
-            <FormCheck.Input
-              id="skip_payment"
-              v-model="formData.skip_payment"
-              type="checkbox"
-            />
-            <FormCheck.Label htmlFor="skip_payment">
-              {{ $t('superadmin.editShop.skipPayment') }}
-            </FormCheck.Label>
-          </FormSwitch>
-          <p class="text-sm text-gray-600 mt-1">
-            {{ $t('superadmin.editShop.skipPaymentDescription') }}
-          </p>
-        </div>
-
-        <!-- Notes -->
-        <div class="md:col-span-12">
-          <FormLabel>{{ $t('superadmin.editShop.notes') }}</FormLabel>
-          <FormTextarea
-            v-model="formData.notes"
-            :placeholder="$t('superadmin.editShop.notesPlaceholder')"
-            rows="3"
-            :class="errors.notes ? 'border-red-500' : ''"
-          />
-          <p v-if="errors.notes" class="text-red-500 text-sm mt-1">{{ errors.notes[0] }}</p>
-        </div>
-      </div>
-
-      <!-- Current Subscription Info -->
-      <div v-if="currentSubscription" class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h3 class="font-semibold text-gray-800 mb-2">Current Subscription</h3>
-        <p class="text-sm text-gray-600">
-          <span v-if="currentSubscription.package">
-            Package: <strong>{{ currentSubscription.package.name }}</strong><br />
-            Status: <strong>{{ currentSubscription.status }}</strong><br />
-            End Date: <strong>{{ formatDate(currentSubscription.end_date) }}</strong>
-          </span>
-          <span v-else>Trial: <strong>{{ currentSubscription.status }}</strong></span>
-        </p>
       </div>
 
       <!-- Form Actions -->
@@ -217,16 +148,15 @@ import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import superAdminApi from '@/network/modules/superadmin';
-import packagesApi from '@/network/modules/packages';
 import { handleResponse, handleError } from '@/network/api/responseHandler';
-import { FormLabel, FormInput, FormTextarea, FormSelect, FormSwitch, FormCheck } from '@/components/Base/Form';
+import { FormLabel, FormInput, FormTextarea, FormSelect } from '@/components/Base/Form';
 import Button from '@/components/Base/Button';
 import Lucide from '@/components/Base/Lucide';
 import LoadingIcon from '@/components/Base/LoadingIcon';
 import toast from '@/stores/utility/toast';
 import pan from '@/stores/pan';
 import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput';
-import { formatMoney, CURRENCY_OPTIONS, getCurrencySymbol } from '@/utils/currency';
+import { CURRENCY_OPTIONS, getCurrencySymbol } from '@/utils/currency';
 
 const router = useRouter();
 const route = useRoute();
@@ -243,11 +173,7 @@ const formData = ref({
   password_confirmation: '',
   phone: '',
   address: '',
-  vat_number: '',
   currency_code: 'EUR',
-  package_id: '',
-  skip_payment: false,
-  notes: '',
 });
 
 const errors = ref({});
@@ -255,34 +181,12 @@ const isSubmitting = ref(false);
 const isLoading = ref(false);
 const isPasswordVisible = ref(false);
 const isConfirmPasswordVisible = ref(false);
-const packages = ref([]);
-const currentSubscription = ref(null);
-const countryCode = ref('SA');
+const countryCode = ref('IE');
 const phoneResults = ref(null);
 const currencyOptions = CURRENCY_OPTIONS.map((code) => ({
   code,
   label: `${code} (${getCurrencySymbol(code)})`,
 }));
-
-const fetchPackages = async () => {
-  try {
-    const response = await packagesApi.listPackages({
-      superAdminId: superAdminId.value,
-      is_active: true, // Only get active packages
-      limit: 100, // Get all active packages
-      page: 1,
-    });
-    const result = handleResponse(response);
-    if (result.success) {
-      // Handle paginated response - data might be in result.data.data or result.data
-      const packagesData = result.data?.data || result.data || [];
-      packages.value = Array.isArray(packagesData) ? packagesData : [];
-    }
-  } catch (error) {
-    handleError(error);
-    toast().fry(pan.error(t('superadmin.editShop.failedToLoadPackages')));
-  }
-};
 
 const fetchShop = async () => {
   if (!superAdminId.value || !shopId) return;
@@ -299,9 +203,9 @@ const fetchShop = async () => {
       const shop = result.data?.data || result.data;
       
       // Format phone for MazPhoneNumberInput
-      // MazPhoneNumberInput expects international format like +966501234567
+      // MazPhoneNumberInput expects international format like +353851234567
       const existingPhone = shop.account?.phone || shop.phone || '';
-      const existingCountryCode = shop.account?.country_code || shop.country_code || '+966';
+      const existingCountryCode = shop.account?.country_code || shop.country_code || '+353';
       
       // Format phone for MazPhoneNumberInput
       let formattedPhone = '';
@@ -309,8 +213,8 @@ const fetchShop = async () => {
         // Remove all non-numeric characters
         const numbers = existingPhone.replace(/\D/g, '');
         
-        // If phone already has country code (starts with 966), use as is
-        if (numbers.startsWith('966') && numbers.length > 3) {
+        // If phone already has country code (starts with 353), use as is
+        if (numbers.startsWith('353') && numbers.length > 3) {
           formattedPhone = `+${numbers}`;
         } else if (numbers.length > 0) {
           // Remove leading 0 if present, then add country code
@@ -327,21 +231,15 @@ const fetchShop = async () => {
         password_confirmation: '',
         phone: formattedPhone,
         address: shop.account?.address || shop.address || '',
-        vat_number: shop.settings?.vat_number || shop.vat_number || '',
         currency_code: shop.settings?.currency_code || shop.currency_code || 'EUR',
-        package_id: shop.current_subscription?.package_id || '',
-        skip_payment: false,
-        notes: shop.current_subscription?.notes || '',
       };
-      
+
       // Set country code from account (remove + sign for MazPhoneNumberInput)
       if (shop.account?.country_code) {
-        countryCode.value = shop.account.country_code.replace('+', '') || 'SA';
+        countryCode.value = shop.account.country_code.replace('+', '') || 'IE';
       } else {
-        countryCode.value = 'SA';
+        countryCode.value = 'IE';
       }
-      
-      currentSubscription.value = shop.current_subscription || null;
     } else {
       toast().fry(pan.error(result.message || t('superadmin.editShop.failedToLoadShop')));
       router.push({ name: 'SuperAdminShops' });
@@ -352,30 +250,6 @@ const fetchShop = async () => {
   } finally {
     isLoading.value = false;
   }
-};
-
-const formatPrice = (price) => {
-  return formatMoney(price || 0);
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-};
-
-const getBillingFrequency = (pkg) => {
-  const typeMap = {
-    daily: 'Daily',
-    weekly: 'Weekly',
-    monthly: 'Monthly',
-    annual: 'Annual',
-  };
-  return typeMap[pkg.duration_type] || 'Monthly';
 };
 
 const handleSubmit = async () => {
@@ -390,7 +264,7 @@ const handleSubmit = async () => {
   try {
     // Format phone number from MazPhoneNumberInput
     const phone = phoneResults.value?.nationalNumber || formData.value.phone;
-    const countryCodeValue = phoneResults.value ? `+${phoneResults.value.countryCallingCode}` : '+966';
+    const countryCodeValue = phoneResults.value ? `+${phoneResults.value.countryCallingCode}` : '+353';
 
     const payload = {
       super_admin_id: superAdminId.value,
@@ -399,25 +273,13 @@ const handleSubmit = async () => {
       phone: phone,
       country_code: countryCodeValue,
       address: formData.value.address,
-      vat_number: formData.value.vat_number,
       currency_code: formData.value.currency_code,
-      skip_payment: formData.value.package_id ? formData.value.skip_payment : false,
     };
 
     // Add password fields only if provided
     if (formData.value.password) {
       payload.password = formData.value.password;
       payload.password_confirmation = formData.value.password_confirmation;
-    }
-
-    // Add package_id if selected
-    if (formData.value.package_id) {
-      payload.package_id = formData.value.package_id;
-    }
-
-    // Add notes if provided
-    if (formData.value.notes) {
-      payload.notes = formData.value.notes;
     }
 
     const response = await superAdminApi.updateShop({ id: shopId, data: payload });
@@ -481,7 +343,6 @@ watch(locale, () => {
 });
 
 onMounted(() => {
-  fetchPackages();
   fetchShop();
   translateCountryCodeText();
 });

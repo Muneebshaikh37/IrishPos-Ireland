@@ -3,6 +3,7 @@
   import {
     FormInput,
     FormLabel,
+    FormSwitch,
     FormTextarea,
   } from "@/components/Base/Form";
   import Button from "@/components/Base/Button";
@@ -29,6 +30,7 @@
     description: "",
     sale_price: "",
     is_service: true,
+    show_in_tiles: false,
    
   })
    
@@ -104,6 +106,17 @@
               <FormLabel>{{ $t('services.descriptionSingle') }}</FormLabel>
               <FormTextarea v-model="createFormData.description" class="py-2 pl-4 resize-none" :rows="3" :placeholder="$t('services.descriptionSinglePlaceholder')">
               </FormTextarea>
+            </div>
+            <div class="col-span-6">
+              <FormLabel>{{ $t('services.showInTiles') }}</FormLabel>
+              <FormSwitch class="mt-2">
+                <FormSwitch.Input
+                  id="show-in-tiles-create"
+                  v-model="createFormData.show_in_tiles"
+                  :checked="createFormData.show_in_tiles"
+                  type="checkbox"
+                />
+              </FormSwitch>
             </div>
             <div class="col-span-12 flex justify-end mt-4">
               <Button variant="primary" class="shadow-md" @click="submitServiceData">

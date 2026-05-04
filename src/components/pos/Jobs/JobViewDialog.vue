@@ -117,6 +117,33 @@
               </div>
             </div>
           </div>
+
+          <div class="flex justify-end gap-2 border-t pt-4">
+            <Button variant="outline-secondary" @click="closeDialog">
+              {{ $t('jobs.cancel') }}
+            </Button>
+            <!-- Check In: opens POS with customer + service pre-filled -->
+            <Button
+              v-if="canShowCheckInButton"
+              variant="outline-primary"
+              @click="checkIn"
+            >
+              Check In
+            </Button>
+            <Button
+              v-if="canShowCompleteButton"
+              variant="primary"
+              :disabled="isCompleting"
+              @click="completeJob"
+            >
+              <template v-if="isCompleting">
+                {{ $t('jobs.completing') }}
+              </template>
+              <template v-else>
+                {{ $t('jobs.completeJob') }}
+              </template>
+            </Button>
+          </div>
         </div>
       </Dialog.Panel>
     </div>
@@ -171,8 +198,14 @@
 
 <script setup lang="ts">
 import { ref, computed, Transition } from "vue";
+import { useRouter } from "vue-router";
 import Button from "@/components/Base/Button";
 import { Dialog } from "@/components/Base/Headless";
+import httpClient from "@/network/api/httpClient";
+import { handleResponse, handleError } from "@/network/api/responseHandler";
+import { useAuthStore } from "@/stores/auth";
+import toast from "@/stores/utility/toast";
+import pan from "@/stores/pan";
 
 const props = defineProps({
   show: Boolean,
@@ -182,7 +215,16 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["close", "completed"]);
+const authStore = useAuthStore();
+const router = useRouter();
+const USER_ID = authStore.getUserId;
+const user = computed(() => authStore.getUser || {});
+const isAdminUser = computed(() => {
+  const role = user.value?.role;
+  const roles = Array.isArray(user.value?.roles) ? user.value.roles : [];
+  return role === "Shop Owner" || role === "Super Admin" || roles.includes("Shop Owner") || roles.includes("Super Admin");
+});
 
 // Computed property to get all assigned workers
 const assignedWorkers = computed(() => {
@@ -226,6 +268,37 @@ const assignedWorkers = computed(() => {
 const isImagePreviewOpen = ref(false);
 const previewImageUrl = ref("");
 const previewImageTitle = ref("");
+const isCompleting = ref(false);
+
+const normalizedJobStatus = computed(() => (props.job?.status || "").toLowerCase());
+const canShowCompleteButton = computed(() => {
+  return isAdminUser.value && normalizedJobStatus.value !== "completed" && normalizedJobStatus.value !== "cancelled";
+});
+
+const completeJob = async () => {
+  if (!props.job?.id || !USER_ID) {
+    return;
+  }
+
+  try {
+    isCompleting.value = true;
+    const baseUrl = import.meta.env.VITE_PUBLIC_API_URL_POS;
+    const response = await httpClient.post(`${baseUrl}/tasks/${props.job.id}/complete`, {
+      user_id: USER_ID,
+    });
+    const result = handleResponse(response);
+    if (result?.status === 200 || result?.success) {
+      toast().fry(pan.customer.success(result?.message || "Job completed successfully."));
+      emit("completed");
+      emit("close");
+    }
+  } catch (error: any) {
+    handleError(error);
+    toast().fry(pan.customer.error(error?.message || "Failed to complete job."));
+  } finally {
+    isCompleting.value = false;
+  }
+};
 
 const openImagePreview = (imageUrl: string, title: string) => {
   previewImageUrl.value = imageUrl;
@@ -237,6 +310,46 @@ const closeImagePreview = () => {
   isImagePreviewOpen.value = false;
   previewImageUrl.value = "";
   previewImageTitle.value = "";
+};
+
+// Check In: pre-fills customer + service in POS when navigating to Daily Till
+const canShowCheckInButton = computed(() => {
+  if (!isAdminUser.value) return false;
+  const status = normalizedJobStatus.value;
+  return status !== 'completed' && status !== 'cancelled';
+});
+
+const checkIn = async () => {
+  if (!props.job) return;
+
+  // Store pre-fill data in sessionStorage — SellingComponent will pick it up on mount
+  sessionStorage.setItem('pos_checkin', JSON.stringify({
+    customer_id:   props.job.customer_id   ?? null,
+    customer_name: props.job.customer_name ?? null,
+    service_id:    props.job.service_id    ?? null,
+    service_name:  props.job.service_name_en ?? props.job.service?.name ?? null,
+    sale_price:    props.job.sale_price    ?? props.job.service?.sale_price ?? 0,
+    task_id:       props.job.id            ?? null,
+  }));
+
+  emit('close');
+
+  // Navigate directly to the currently open register (if one exists)
+  try {
+    const baseUrl = import.meta.env.VITE_PUBLIC_API_URL_POS;
+    const res = await httpClient.get(`${baseUrl}/registers?user_id=${USER_ID}`);
+    const registers = res.data?.data ?? [];
+    const openRegister = registers.find((r: any) => r.status === 'open');
+    if (openRegister?.id) {
+      router.push({ name: 'Register Close', params: { registerId: openRegister.id } });
+      return;
+    }
+  } catch {
+    // fall through to default
+  }
+
+  // No open register found — go to Daily Till so they can open one
+  router.push({ name: 'Register' });
 };
 
 const closeDialog = () => {

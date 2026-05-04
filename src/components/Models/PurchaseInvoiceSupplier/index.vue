@@ -40,20 +40,20 @@ const createFormData = ref({
 	email: "",
 	address: "",
 	vat: "",
-	country_code: "+966",
+	country_code: "+353",
 	phone: "",
 })
 
 // Phone number formatting
 const phoneDisplay = ref("");
 
-// Format phone number as user types: 5XX XXX XXXX (without +966 prefix in input)
+// Format phone number as user types (without +353 prefix in input)
 const formatPhoneNumber = (value) => {
 	// Remove all non-numeric characters
 	const numbers = value.replace(/\D/g, '');
 	
-	// Remove leading 966 if user types it
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	// Remove leading 353 if user types it
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	
 	// Limit to 9 digits (Saudi phone number format: 5XX XXX XXXX)
 	const limitedNumbers = cleanNumbers.substring(0, 9);
@@ -92,7 +92,7 @@ const handlePhoneInput = (event) => {
 	
 	// Store clean numeric value (just the 9 digits, without 966)
 	const numbers = inputValue.replace(/\D/g, '');
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	createFormData.value.phone = cleanNumbers.substring(0, 9);
 	
 	// Calculate new cursor position
@@ -127,7 +127,7 @@ const handlePhonePaste = (event) => {
 	phoneDisplay.value = formatted;
 	
 	const numbers = pastedData.replace(/\D/g, '');
-	const cleanNumbers = numbers.startsWith('966') ? numbers.substring(3) : numbers;
+	const cleanNumbers = numbers.startsWith('353') ? numbers.substring(3) : numbers;
 	createFormData.value.phone = cleanNumbers.substring(0, 9);
 	
 	// Update the input value
@@ -156,15 +156,15 @@ const handlePhoneKeydown = (event) => {
 	}
 };
 
-// Get clean phone number for submission (966XXXXXXXXX)
+// Get clean phone number for submission (353XXXXXXXXX)
 const getCleanPhoneNumber = () => {
 	const phone = createFormData.value.phone || '';
-	return '966' + phone;
+	return '353' + phone;
 };
 
 const resetForm = () => {
   Object.keys(createFormData.value).forEach(key => {
-    createFormData.value[key] = key === 'country_code' ? '+966' : '';
+    createFormData.value[key] = key === 'country_code' ? '+353' : '';
   });
   phoneDisplay.value = '';
 };
@@ -178,7 +178,7 @@ const submitCreate = async () => {
 		// Prepare payload with clean phone number
 		const payload = {
 			...createFormData.value,
-			phone: getCleanPhoneNumber() // Store as 966XXXXXXXXX
+			phone: getCleanPhoneNumber() // Store as 353XXXXXXXXX
 		};
 		const response = await httpClient.post(`${import.meta.env.VITE_PUBLIC_SUPPLIER_API_URL}/suppliers?user_id=${USER_ID}`, payload)
 		// const response = await apiService.supplier.create(createFormData.value);
@@ -264,7 +264,7 @@ const modelCloseSupplier = () => { isOpenSupplier.value = false; resetFormClosed
             <FormLabel>{{ $t('suppliers.phone') }} <span class="text-danger"> *</span></FormLabel>
             <div class="flex item-center justify-center">
               <p class="bg-gray-100 flex items-center justify-center w-[55px] text-sm border border-slate-200 shadow-sm rounded-l-md rounded-r-none">
-                +966
+                +353
               </p>
               <FormInput 
                 id="phone" 

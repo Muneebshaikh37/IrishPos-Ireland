@@ -70,7 +70,7 @@
     "PurchasesReports": "Purchases Reports",
     "InventoryReports": "Inventory Reports",
     "TaxReporting" : "Tax Reporting",
-    "VATSummaryReport": "VAT Summary Report",
+    "VATSummaryReport": "Tax Summary Report",
     "VATSuppliers": "VAT collected from sales and VAT paid to suppliers",
 
     "TaxYear" : "Tax Year",

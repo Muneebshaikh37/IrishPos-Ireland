@@ -213,15 +213,5 @@ const taxDifference = computed(() =>
 				</div> 
 			</div>
 		</div> 
-		<div class="border border-slate-200 rounded-md relative px-4 pb-5 mt-10">
-    <h2 class="mr-auto text-lg font-semibold absolute -top-4 bg-white px-2">{{ $t('tax-management.vatFilling') }}</h2>
-    <div class="mt-6">
-      <Button variant="primary" type="button" class="  mt-4"  >
-        <a href="https://zatca.gov.sa/en/eServices/Pages/eServices_009.aspx" target="_blank">
-          {{ $t('tax-management.vatFilling') }}
-        </a>
-      </Button>
-    </div>
-  </div>
 	</div>
 </template>
