@@ -37,7 +37,7 @@
   </span>
     </template>
     <template #updated_at="data">
-      {{ data.value.updated_at ?? '' }}
+      {{ formatDateTime(data.value.updated_at) }}
     </template>
     <template #payment_type="data">
       {{ data.value.payment_type ?? 'None' }}
@@ -58,6 +58,14 @@
           @click="editInvoice(data.value.id)">
           <Lucide icon="Pencil" class="w-4 h-4 text-green-600"/>
         </a>
+        <a
+          v-if="authStore.ability?.can('delete', 'invoice')"
+          href="#"
+          class="bg-red-100 p-2 rounded-md"
+          @click.prevent="openDeleteModal(data.value.id)"
+        >
+          <Lucide icon="Trash2" class="w-4 h-4 text-red-600"/>
+        </a>
         <a v-if="shouldShowReturnIcon(data.value)" href="#" class="bg-blue-100 p-2 rounded-md cursor-pointer"
           @click="openReturnInvoice(data.value.id)">
           <Lucide icon="RotateCcw" class="w-4 h-4 text-blue-500"/>
@@ -77,6 +85,7 @@
             <div class="flex justify-center mb-3">
               <img src="@/assets/images/jaldi.png" alt="Jaldi Logo" class="h-12" />
             </div>
+            <h2 class="text-base font-medium mb-2">{{ storeName }}</h2>
               
             <h4 class="text-sm font-medium mb-2">{{ $t('invoices.date') }}: <span>{{ isDataInvoice.date }}</span></h4>
             <h4 class="text-sm font-medium">{{ $t('invoices.customer') }}: <span v-if="isDataInvoice && isDataInvoice.customer_name">{{ isDataInvoice.customer_name }}</span> <span v-else>{{ $t('invoices.na') }}</span></h4>
@@ -136,7 +145,7 @@
             <h2 class="text-base font-medium text-gray-600 mb-1">{{ $t('invoices.invoiceNumber') }}: <span
                 class="text-gray-400">{{ isDataInvoice.invoice_number }}</span>
             </h2>
-            <h2 class="text-base font-medium text-gray-600 mb-1"> {{ USER.store_name }}
+            <h2 class="text-base font-medium text-gray-600 mb-1"> {{ storeName }}
             </h2>
             <h3 class="text-base font-medium text-gray-600 ">{{ USER.address }}</h3>
             <span class=" absolute top-3 right-3 p-1.5 cursor-pointer bg-[#324054] rounded-md" @click="printInvoice">
@@ -214,6 +223,26 @@
       </div>
     </Dialog.Panel>
   </Dialog>
+
+  <Dialog :open="deleteConfirmationModal" @close="closeDeleteModal">
+    <Dialog.Panel>
+      <div class="p-5 text-center">
+        <Lucide icon="AlertTriangle" class="w-16 h-16 mx-auto mt-3 text-warning"/>
+        <div class="mt-5 text-3xl">{{ $t('common.areYouSure') }}</div>
+        <div class="mt-2 text-slate-500">
+          {{ $t('common.deleteConfirmation') }}
+        </div>
+      </div>
+      <div class="px-5 pb-8 text-center">
+        <Button variant="outline-secondary" type="button" @click="closeDeleteModal" class="w-24 mr-1">
+          {{ $t('common.cancel') }}
+        </Button>
+        <Button variant="danger" type="button" class="ml-4 w-24" @click="confirmDeleteInvoice">
+          {{ $t('common.delete') }}
+        </Button>
+      </div>
+    </Dialog.Panel>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -230,6 +259,7 @@ import {handleError, handleResponse} from "@/network/api/responseHandler";
 import { normalizeInvoiceDetailFromApi } from "@/helpers/posInvoiceHelper.js";
 import {useRouter} from "vue-router";
 import {decimalFormat} from "@/helpers/commonHelper";
+import { formatDateTime } from "@/utils/helper";
 import InvoiceSkeleton from "@/components/globel/Skeleton/InvoiceSkeleton.vue";
 
 import {useAuthStore} from "@/stores/auth.js";
@@ -238,6 +268,9 @@ import {useI18n} from "vue-i18n";
 const authStore = useAuthStore();
 const USER_ID = authStore.getUserId;
 const USER = authStore.getUser;
+const storeName = computed(() => {
+  return USER?.store_name || USER?.name || localStorage.getItem("store_name") || "Store";
+});
 // Props
 const props = defineProps({
   registerId: {
@@ -307,6 +340,39 @@ const isOpenInvoicePrint = async (Uuid) => {
 }
 const openReturnInvoice = (invoiceId) => {
   router.push({name: 'ReturnInvoice', params: {invoiceId}});
+};
+
+const deleteConfirmationModal = ref(false);
+const pendingDeleteInvoiceId = ref<string | null>(null);
+
+const openDeleteModal = (invoiceId: string) => {
+  pendingDeleteInvoiceId.value = invoiceId;
+  deleteConfirmationModal.value = true;
+};
+
+const closeDeleteModal = () => {
+  deleteConfirmationModal.value = false;
+  pendingDeleteInvoiceId.value = null;
+};
+
+const confirmDeleteInvoice = async () => {
+  if (!pendingDeleteInvoiceId.value) return;
+
+  try {
+    loading.value = true;
+    const response = await httpClient.delete(`${import.meta.env.VITE_PUBLIC_API_URL_POS}/invoices/${pendingDeleteInvoiceId.value}`, {
+      params: { user_id: USER_ID },
+    });
+    const result = handleResponse(response);
+    if (result.success) {
+      closeDeleteModal();
+      await fetchData();
+    }
+  } catch (error) {
+    handleError(error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const shouldShowReturnIcon = (invoice) => {

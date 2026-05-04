@@ -21,6 +21,8 @@
   "enterJobDescription": "Enter job description",
   "create": "Create",
   "update": "Update",
-  "assignedWorkers": "Assigned Workers"
+  "assignedWorkers": "Assigned Workers",
+  "completeJob": "Complete Job",
+  "completing": "Completing..."
 }
 

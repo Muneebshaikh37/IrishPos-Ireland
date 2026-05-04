@@ -43,7 +43,6 @@ import ReturnInvoice from "@/pages/Pos/Invoices/ReturnInvoice.vue";
 import CloseRegister from "@/pages/Pos/CloseRegister.vue";
 import EditInvoice from "@/pages/Pos/Invoices/EditInvoice.vue";
 import UsersTab from "@/components/Settings/Users/UsersTab.vue";
-import RenewSubscription from "@/components/Settings/RenewSubscription/RenewSubscription.vue";
 
 import InventoryReport from "../pages/Reporting/InventoryReport.vue";
 import InventoryReportLevel from "../pages/Reporting/InventoryReport/InventoryReportLevel.vue";
@@ -174,11 +173,6 @@ const routes: any = [
             component: UsersTab,
           },
           {
-            path: "renew-subscription",
-            name: "SubscriptionManagement",
-            component: RenewSubscription,
-          },
-          {
             path: "company-profile",
             name: "CompanyProfile",
             component: CompanyProfile,
@@ -230,47 +224,86 @@ const routes: any = [
 
       // },
 
+      // ── Super Admin routes ─────────────────────────────────────────────
       {
         path: "/superadmin/dashboard",
         name: "SuperAdminDashboard",
         component: () => import("../pages/SuperAdmin/Dashboard.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("super admin")),
       },
       {
         path: "/superadmin/shops",
         name: "SuperAdminShops",
         component: () => import("../pages/SuperAdmin/Shops.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("super admin")),
       },
       {
         path: "/superadmin/shops/create",
         name: "SuperAdminCreateShop",
         component: () => import("../pages/SuperAdmin/CreateShop.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("super admin")),
       },
       {
         path: "/superadmin/shops/:id/edit",
         name: "SuperAdminEditShop",
         component: () => import("../pages/SuperAdmin/EditShop.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("super admin")),
       },
       {
-        path: "/superadmin/packages",
-        name: "SuperAdminPackages",
-        component: () => import("../pages/SuperAdmin/Packages/index.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        path: "/superadmin/shops/:id/modules",
+        name: "SuperAdminShopModules",
+        component: () => import("../pages/SuperAdmin/ShopModules.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("super admin")),
+      },
+
+      // ── Product Owner routes ───────────────────────────────────────────
+      {
+        path: "/product-owner/dashboard",
+        name: "ProductOwnerDashboard",
+        component: () => import("../pages/ProductOwner/Dashboard.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
       },
       {
-        path: "/superadmin/packages/create",
-        name: "SuperAdminCreatePackage",
-        component: () => import("../pages/SuperAdmin/Packages/create.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        path: "/product-owner/super-admins",
+        name: "ProductOwnerSuperAdmins",
+        component: () => import("../pages/ProductOwner/SuperAdmins.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
       },
       {
-        path: "/superadmin/packages/:id/edit",
-        name: "SuperAdminEditPackage",
-        component: () => import("../pages/SuperAdmin/Packages/edit.vue"),
-        beforeEnter: combineGuards(useAuthGuard()),
+        path: "/product-owner/super-admins/create",
+        name: "ProductOwnerCreateSuperAdmin",
+        component: () => import("../pages/ProductOwner/CreateSuperAdmin.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
+      },
+      {
+        path: "/product-owner/super-admins/:id/edit",
+        name: "ProductOwnerEditSuperAdmin",
+        component: () => import("../pages/ProductOwner/EditSuperAdmin.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
+      },
+      {
+        path: "/product-owner/super-admins/:id",
+        name: "ProductOwnerSuperAdminDetail",
+        component: () => import("../pages/ProductOwner/SuperAdminDetail.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
+      },
+      {
+        path: "/product-owner/packages",
+        name: "ProductOwnerPackages",
+        component: () => import("../pages/ProductOwner/Packages/index.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
+      },
+      {
+        path: "/product-owner/packages/create",
+        name: "ProductOwnerCreatePackage",
+        component: () => import("../pages/ProductOwner/Packages/create.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
+      },
+      {
+        path: "/product-owner/packages/:id/edit",
+        name: "ProductOwnerEditPackage",
+        component: () => import("../pages/ProductOwner/Packages/edit.vue"),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("product owner")),
       },
     ],
   },
@@ -496,14 +529,14 @@ const routes: any = [
         name: "ReturnInvoice",
         component:ReturnInvoice,
         props: true,
-        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("admin,superadmin")),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("shop owner,super admin")),
       },
       {
         path:"/pos/register/edit/:invoiceId",
         name: "EditInvoice",
         component:EditInvoice,
         props: true,
-        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("admin,superadmin")),
+        beforeEnter: combineGuards(useAuthGuard(), useRoleGuard("shop owner,super admin")),
       },
 
       {
@@ -842,6 +875,14 @@ const routes: any = [
     ],
   },
   /* End Reporting Routes */
+
+  // ── Public booking page — no auth, no layout ──────────────────────────────
+  {
+    path: '/book',
+    name: 'PublicBooking',
+    component: () => import('../pages/Public/Booking.vue'),
+  },
+  // ──────────────────────────────────────────────────────────────────────────
 
   {
     path: "/not-found",

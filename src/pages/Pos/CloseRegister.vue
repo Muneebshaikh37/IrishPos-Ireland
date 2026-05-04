@@ -47,7 +47,15 @@
       </div>
       <div class="grid grid-cols-12 gap-3">
         <div class="col-span-6">
-          <Button v-if="ability.can('close', 'register')" variant="danger" @click="showCloseRegister = true" class="w-full text-white py-2 px-4 rounded-lg">{{$t('pos-registers.closeRegister')}}</Button>
+          <Button
+              v-if="ability.can('close', 'register')"
+              variant="danger"
+              @click="showCloseRegister = true"
+              :disabled="isAlreadyClosed"
+              class="w-full text-white py-2 px-4 rounded-lg disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {{ isAlreadyClosed ? $t('pos-registers.closedAt') : $t('pos-registers.closeRegister') }}
+          </Button>
         </div>
         <div class="col-span-6">
           <RouterLink :to="{ name: 'RegisterInvoice', params: { registerId: registerId.value } }">
@@ -108,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed } from "vue";
 import { Dialog } from "@/components/Base/Headless";
 import Button from "@/components/Base/Button";
 import LoadingIcon from "@/components/Base/LoadingIcon";
@@ -136,6 +144,7 @@ const route = useRoute();
 const registerId = ref(route.params.registerId);
 const registerDetails = ref({});
 const showCloseRegister = ref(false);
+const isAlreadyClosed = computed(() => Boolean(registerDetails.value?.closed_at) || registerDetails.value?.status === "closed");
 
 // Close the "Record Cash" dialog
 const closeRecordCashDialog = () => {

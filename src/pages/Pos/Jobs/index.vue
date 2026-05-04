@@ -36,6 +36,7 @@
   <JobViewDialog
     v-model:show="isViewJobDialogOpen"
     :job="selectedJob"
+    @completed="fetchDataSafe"
     @close="closeViewJobDialog"
   />
 

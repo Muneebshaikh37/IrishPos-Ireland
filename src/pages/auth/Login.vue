@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted , reactive} from 'vue'; 
+import { ref, onMounted , reactive} from 'vue';
 import pan from "@/stores/pan";
 import { RouterLink } from 'vue-router';
 import toast from "@/stores/utility/toast";
@@ -8,7 +8,6 @@ import Button from '@/components/Base/Button';
 import { useAuthStore } from '@/stores/auth.js';
 import LoadingIcon from '@/components/Base/LoadingIcon';
 import { FormCheck, FormInput } from '@/components/Base/Form';
-import LocaleSelector from "@/components/globel/LocaleSelector.vue";
 
 const logoUrl = '/juldi.png';
 
@@ -42,12 +41,12 @@ const login = async () => {
   } catch (error) {
     // Always show user-friendly message for login errors
     let errorMessage = 'Incorrect Credentials';
-    
+
     // Check for validation errors first
     if (authStore.errors && authStore.errors.errors) {
       isValidForm.setErrors(authStore.errors.errors);
       // Extract user-friendly message from validation errors
-      const validationError = authStore.errors.errors.email?.[0] || 
+      const validationError = authStore.errors.errors.email?.[0] ||
                              authStore.errors.errors.password?.[0];
       if (validationError) {
         errorMessage = validationError;
@@ -65,97 +64,102 @@ const login = async () => {
         errorMessage = msg;
       }
     }
-    
+
     // Show user-friendly error message
     toast().fry(pan.authin.error(errorMessage));
   } finally {
     isLoading.value = false;
   }
-}; 
+};
 onMounted(() => {
   locale.value = localStorage.getItem('locale') || 'en';
 });
 </script>
 
 <template>
-  <div class="bg-[#f4f4f4] flex justify-center items-center w-full h-[100vh]">
-    <div class="w-[600px] mx-auto bg-white p-10 rounded-md">
-      <div class="logo text-center flex justify-center mb-6">
-        <img :src="logoUrl" alt="$t('logo.alt')" class="w-[180px] md:w-auto" />
-
-      </div>
-      <div class="form-parent pt-10 px-4">
-        <div class="form-heading mb-4">
-          <div class="flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-black">{{ $t('auth.welcomeBack') }}</h1>
-            <LocaleSelector />
-          </div>
-          <p class="text-base font-medium">{{ $t('auth.loginToAccount') }}</p>
-
-
+  <div class="min-h-screen w-full bg-[#f4f4f4] px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-xl">
+      <div class="hidden w-full max-w-md flex-col justify-between bg-primary px-10 py-12 text-white lg:flex">
+        <div>
+          <img :src="logoUrl" alt="$t('logo.alt')" class=" max-w-full object-contain" />
+          <h2 class="mt-8 text-3xl font-semibold leading-tight">{{ $t('auth.welcomeBack') }}</h2>
+          <p class="mt-4 text-sm leading-6 text-slate-200">
+            {{ $t('auth.loginToAccount') }}
+            Access your dashboard to manage sales, inventory, purchasing, and reports in one place.
+            Stay in control of day-to-day operations with secure and reliable sign in.
+          </p>
         </div>
-        <form @submit.prevent="login">
-          <div class="form-group relative mb-6">
-            <FormInput
+        <p class="text-xs text-slate-300">Secure access for your team and business operations.</p>
+      </div>
+
+      <div class="flex w-full items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
+        <div class="w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
+          <div class="mb-8 space-y-4">
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-semibold text-slate-900">{{ $t('auth.signIn') }}</h1>
+            </div>
+            <p class="text-sm text-slate-600">{{ $t('auth.loginToAccount') }}</p>
+          </div>
+
+          <form @submit.prevent="login">
+            <div class="form-group relative mb-5">
+              <FormInput
                 id="email"
                 type="text"
                 v-model="form.email"
                 :placeholder="$t('auth.email')"
-                class="pe-10 py-3"
-                :class="{'border-red-500': isValidForm.invalid('email') || isValidForm.invalid('is_active')}"
-            />
-            <Lucide icon="Mail" class="w-5 h-5 text-gray-500 absolute top-3" :class="{ 'left-3': locale === 'ar', 'right-3': locale !== 'ar' }" />
-            <p v-if="isValidForm.invalid('email')" class="text-red-500 text-sm mt-1">
-              {{ isValidForm.getError('email') }}
-            </p>
-            <p v-if="isValidForm.invalid('is_active')" class="text-red-500 text-sm mt-1">
-              {{ isValidForm.getError('is_active') }}
-            </p>
-            <Lucide icon="Mail" class="w-5 h-5 text-gray-500 absolute top-3 right-3" />
-          </div>
-          <div class="form-group relative mb-4">
-            <FormInput
+                class="h-12 pe-10 rounded-lg border-slate-200"
+                :class="{ 'border-red-500': isValidForm.invalid('email') || isValidForm.invalid('is_active') }"
+              />
+              <Lucide icon="Mail" class="absolute top-3.5 h-5 w-5 text-slate-400" :class="{ 'left-3': locale === 'ar', 'right-3': locale !== 'ar' }" />
+              <p v-if="isValidForm.invalid('email')" class="mt-1 text-sm text-red-500">
+                {{ isValidForm.getError('email') }}
+              </p>
+              <p v-if="isValidForm.invalid('is_active')" class="mt-1 text-sm text-red-500">
+                {{ isValidForm.getError('is_active') }}
+              </p>
+            </div>
+
+            <div class="form-group relative mb-4">
+              <FormInput
                 id="password"
                 v-model="form.password"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :placeholder="$t('auth.password')"
-                class="pe-10 py-3"
-                :class="{'border-red-500': isValidForm.invalid('password')}"
-            />
-            <p v-if="isValidForm.invalid('password')" class="text-red-500 text-sm mt-1">
-              {{ isValidForm.getError('password') }}
-            </p>
-            <Lucide
+                class="h-12 pe-10 rounded-lg border-slate-200"
+                :class="{ 'border-red-500': isValidForm.invalid('password') }"
+              />
+              <p v-if="isValidForm.invalid('password')" class="mt-1 text-sm text-red-500">
+                {{ isValidForm.getError('password') }}
+              </p>
+              <Lucide
                 :icon="isPasswordVisible ? 'Eye' : 'EyeOff'"
                 @click="togglePasswordVisibility"
-                class="w-5 h-5 text-gray-500 absolute top-3 cursor-pointer" :class="{ 'left-3': locale === 'ar', 'right-3': locale !== 'ar' }"
-            />
-          </div>
-          <div class="flex mb-4 text-xs text-slate-600 dark:text-slate-500 sm:text-sm">
-            <div class="flex items-center " :class="{ 'ml-auto': locale === 'ar', 'mr-auto': locale !== 'ar' }">
-              <FormCheck.Input id="remember-me" type="checkbox" class=" border" :class="{ 'ml-2': locale === 'ar', 'mr-2': locale !== 'ar' }" />
-              <label class="cursor-pointer select-none" htmlFor="remember-me">{{ $t('auth.rememberMe') }}</label>
-              <RouterLink to="/forget-password" class="text-primary mx-2">{{ $t('auth.forgotPassword') }}</RouterLink>
+                class="absolute top-3.5 h-5 w-5 cursor-pointer text-slate-400"
+                :class="{ 'left-3': locale === 'ar', 'right-3': locale !== 'ar' }"
+              />
             </div>
-           
-          </div>
-          <div class="mb-6 pt-8">
-            <Button type="submit" variant="primary" class="w-full py-2.5 text-base">
+
+            <div class="mb-6 flex items-center justify-between gap-3 text-xs text-slate-600 sm:text-sm">
+              <label class="flex cursor-pointer select-none items-center" :class="{ 'order-2': locale === 'ar' }" for="remember-me">
+                <FormCheck.Input id="remember-me" type="checkbox" class="border" :class="{ 'ml-2': locale === 'ar', 'mr-2': locale !== 'ar' }" />
+                {{ $t('auth.rememberMe') }}
+              </label>
+              <RouterLink to="/forget-password" class="text-primary hover:underline">
+                {{ $t('auth.forgotPassword') }}
+              </RouterLink>
+            </div>
+
+            <Button type="submit" variant="primary" class="h-12 w-full rounded-lg text-base font-medium">
               <template v-if="isLoading">
-                <LoadingIcon icon="three-dots" class="w-8 h-6 text-white" />
+                <LoadingIcon icon="three-dots" class="h-6 w-8 text-white" />
               </template>
               <template v-else>
                 {{ $t('auth.signIn') }}
               </template>
             </Button>
-          </div>
-        </form>
-        <!--<div>
-          <h5 class="text-base text-center font-medium">
-            {{ $t('auth.dontHaveAccount') }}
-            <RouterLink to="/register" class="text-primary">{{ $t('auth.register') }}</RouterLink>
-          </h5>
-        </div>-->
+          </form>
+        </div>
       </div>
     </div>
   </div>

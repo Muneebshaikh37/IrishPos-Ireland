@@ -26,6 +26,7 @@
   "status": "الحالة",
   "actions": "الإجراءات",
   "serviceStatus": "حالة الخدمة",
+  "showInTiles": "إظهار في مربعات البيع",
   "deleteConfirmation": "تأكيد الحذف",
   "deleteConfirmationMessage": "هل أنت متأكد أنك تريد حذف هذه الخدمة؟",
   "cancel": "إلغاء",

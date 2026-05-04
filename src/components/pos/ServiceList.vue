@@ -33,11 +33,16 @@
           <td class="py-3 px-2 relative worker-select-cell">
             <div class="w-full min-w-[200px]">
               <WorkerMultiSelect
-                :modelValue="Array.isArray(service.assigned_worker) ? service.assigned_worker : (service.assigned_worker && service.assigned_worker !== '' && service.assigned_worker !== null ? [String(service.assigned_worker)] : [])"
+                :modelValue="Array.isArray(service.assigned_worker)
+                  ? service.assigned_worker.slice(0, 1)
+                  : (service.assigned_worker && service.assigned_worker !== '' && service.assigned_worker !== null ? [String(service.assigned_worker)] : [])"
                 @update:modelValue="(value) => {
                   // Handle array of selected worker IDs
                   if (Array.isArray(value) && value.length > 0) {
-                    service.assigned_worker = value.map(v => String(v).trim()).filter(v => v !== '');
+                    service.assigned_worker = value
+                      .map(v => String(v).trim())
+                      .filter(v => v !== '')
+                      .slice(0, 1);
                   } else {
                     service.assigned_worker = [];
                   }
@@ -48,6 +53,7 @@
                   }
                 }"
                 :workers="workers"
+                :multiple="false"
                 :placeholder="workers.length === 1 ? 'Select option' : 'Select Workers'"
                 :hasError="isValidationTriggered && (!service.assigned_worker || (Array.isArray(service.assigned_worker) && service.assigned_worker.length === 0) || service.assigned_worker === '' || service.assigned_worker === null)"
               />

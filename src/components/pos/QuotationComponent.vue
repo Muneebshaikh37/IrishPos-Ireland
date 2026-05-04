@@ -28,7 +28,7 @@
                         :sortDirection="params.sort_direction"
                         :search="params.search" @change="changeServer">
           <template #updated_at="data">
-            {{ data.value.updated_at ?? '' }}
+            {{ formatDateTime(data.value.updated_at) }}
           </template>
           <template #quotation_status="data">
             <div class="quotation-status-wrapper max-w-[180px]" @click.stop>
@@ -163,6 +163,7 @@ import {handleError, handleResponse} from "@/network/api/responseHandler";
 import Urlbarcode from "@/assets/images/landing-page/barcode.jpg";
 import {Dialog} from "@/components/Base/Headless";
 import {decimalFormat} from "@/helpers/commonHelper";
+import { formatDateTime } from "@/utils/helper";
 import InvoiceSkeleton from "@/components/globel/Skeleton/InvoiceSkeleton.vue";
 import {useAbility} from "@casl/vue";
 import toast from "@/stores/utility/toast";

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import "@/assets/css/themes/rubick/side-nav.css";
-import { useRoute } from "vue-router";
 import logoUrl from "@/assets/images/logo-jaldi.png";
+import { useRoute } from "vue-router";
 import Lucide from "@/components/Base/Lucide";
 import TopBar from "@/components/Themes/Rubick/TopBar";
 import MobileMenu from "@/components/MobileMenu";
 import { useMenuStore } from "@/stores/menu";
+import { useAuthStore } from "@/stores/auth";
 import {
   STATIC_SHOP_SIDE_MENU,
   STATIC_SUPERADMIN_SIDE_MENU,
+  STATIC_PRODUCT_OWNER_SIDE_MENU,
 } from "@/config/staticSideMenu";
 import {
   type ProvideForceActiveMenu,
@@ -31,8 +33,19 @@ const setFormattedMenu = (
   Object.assign(formattedMenu, computedFormattedMenu);
 };
 const menuStore = useMenuStore();
+const authStore = useAuthStore();
 const menu = computed(() => nestedMenu(menuStore.menu("side-menu"), route));
 const windowWidth = ref(window.innerWidth);
+const sidebarStoreName = computed(
+  () => authStore.user?.store_name || authStore.user?.name || "Storefront"
+);
+// Product Owner is a platform-level role with no shop, so the sidebar shows
+// the brand logo instead of a per-shop name.
+const isProductOwnerRole = computed(() => {
+  const role = authStore.user?.role;
+  const roles = (authStore.user as any)?.roles;
+  return role === "Product Owner" || (Array.isArray(roles) && roles.includes("Product Owner"));
+});
 
 provide<ProvideForceActiveMenu>("forceActiveMenu", (pageName: string) => {
   forceActiveMenu(route, pageName);
@@ -64,13 +77,29 @@ function routeMatchesChild(child: any): boolean {
 function buildStaticSideMenu() {
   const userData = localStorage.getItem("user");
   const user = userData ? JSON.parse(userData) : null;
-  const isSuperAdmin =
-    user?.role === "Super Admin" ||
-    (Array.isArray(user?.roles) && user.roles.includes("Super Admin"));
+  const userRoles = [user?.role, ...(Array.isArray(user?.roles) ? user.roles : [])].filter(Boolean);
+  const isProductOwner = userRoles.includes("Product Owner");
+  const isSuperAdmin = userRoles.includes("Super Admin");
 
-  const base = isSuperAdmin ? STATIC_SUPERADMIN_SIDE_MENU : STATIC_SHOP_SIDE_MENU;
+  // Route to correct menu based on role
+  const base = isProductOwner
+    ? STATIC_PRODUCT_OWNER_SIDE_MENU
+    : isSuperAdmin
+      ? STATIC_SUPERADMIN_SIDE_MENU
+      : STATIC_SHOP_SIDE_MENU;
   const cloned = JSON.parse(JSON.stringify(base));
-  isAllMenu.value = cloned.map((menu: any) => ({
+
+  // For shop-level users, filter out modules not in their allowed_modules list.
+  // allowed_modules: null = no restriction, string[] = only these are visible.
+  const allowedModules: string[] | null = user?.allowed_modules ?? null;
+  const filtered = (!isProductOwner && !isSuperAdmin && allowedModules !== null)
+    ? cloned.filter((item: any) => {
+        if (item.module_key === null || item.module_key === undefined) return true; // always visible
+        return allowedModules.map((m: string) => m.toLowerCase()).includes(item.module_key.toLowerCase());
+      })
+    : cloned;
+
+  isAllMenu.value = filtered.map((menu: any) => ({
     ...menu,
     is_parent: menu.children?.length
       ? menu.children.some((child: any) => routeMatchesChild(child))
@@ -159,8 +188,11 @@ const dummy = [1,2,3,4,5,6,7,8]
     <div class="mt-[4.7rem] flex md:mt-0">
       <!-- BEGIN: Side Menu -->
       <nav class="side-nav hidden md:block md:w-[200px] xl:w-[260px]  pb-16 overflow-x-hidden z-10" :class="{ 'px-0 side-nav-ar': locale === 'ar', 'px-5': locale !== 'ar' }">
-        <RouterLink :to="{ name: 'dashboard' }" class="flex items-center pt-4  mt-3">
-          <img alt="Tinker Tailwind HTML Admin Template" :src="logoUrl" />
+        <RouterLink :to="{ name: 'dashboard' }" class="flex items-center justify-center rounded-2xl bg-white/10 px-3 py-4 pt-4 mt-3">
+          <img v-if="isProductOwnerRole" :src="logoUrl" alt="Logo" class="h-10 w-auto object-contain" />
+          <h2 v-else class="sidebar-store-name text-center">
+            {{ sidebarStoreName }}
+          </h2>
         </RouterLink>
         <div class="my-6 side-nav__divider"></div>
         <ul v-if="isAllMenu">
@@ -272,6 +304,15 @@ transform: rotate(-90deg) scale(1.04);
   padding-top: 20px;
   padding-bottom: 20px;
   padding-left: 12px;
+}
+
+.sidebar-store-name {
+  color: #ffffff;
+  font-size: 1.125rem;
+  line-height: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  word-break: break-word;
 }
 </style>
 

@@ -95,8 +95,8 @@ const isCloseViewInvoice = () => {
                   <tbody>
                   <tr v-for="list in isListInvoice.items"
                       class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                    <td class="py-3 px-2 text-xs">{{ list.product_name_en }} </td>
-                    <td class="py-3 px-2 text-xs">{{ list.packing }} </td>
+                    <td class="py-3 px-2 text-xs">{{ list.product_name_en || list.product?.name_en || list.product?.name_ar || '-' }} </td>
+                    <td class="py-3 px-2 text-xs">{{ list.packing || list.type || '-' }} </td>
                     <td class="py-3 px-2 text-xs">{{ list.unit_price }} </td>
                     <td class="py-3 px-2 text-xs">{{ list.quantity }}  </td>
                     <td class="py-3 px-2 text-xs">{{ list.vat }} </td>

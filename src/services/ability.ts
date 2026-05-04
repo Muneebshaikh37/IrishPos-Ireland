@@ -9,7 +9,7 @@ export function defineAbilitiesFor(role: string) {
     const { can, cannot, build } = new AbilityBuilder<AppAbility>(Ability);
 
     if (role === 'admin') {
-        can('manage', 'all'); // Admin can do anything
+        can('manage', 'all'); // Shop Owner can do anything
     } else if (role === 'editor') {
         can('read', 'Post');
         can('update', 'Post');

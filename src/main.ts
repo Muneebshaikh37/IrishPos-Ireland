@@ -60,8 +60,8 @@ if (user) {
                 const [subject, action] = String(permissionName).split(':');
                 return { action: action.toLowerCase(), subject };
             }).filter(rule => rule !== null);
-            // Give Admin and Super Admin full access (matches original behavior on reload)
-            if (parsedUser.role === 'Super Admin' || parsedUser.role === 'Admin') {
+            // Give platform and shop-level roles full access (matches original behavior on reload)
+            if (['Product Owner', 'Super Admin', 'Shop Owner'].includes(parsedUser.role)) {
                 rules.push({ action: 'manage', subject: 'all' });
             }
             authStore.ability.update(rules);

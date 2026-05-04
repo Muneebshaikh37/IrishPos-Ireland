@@ -29,10 +29,10 @@
                 :noFlags="true"
                 :noExample="true"
                 :fetchCountry="false"
-                :default-country="'SA'"
+                :default-country="'IE'"
                 :block="true"
                 v-model:country-code="countryCode"
-                :onlyCountries="['SA']"
+                :onlyCountries="['IE']"
                 class="w-full h-12"
                 @update="results = $event"
                 :error="isValidForm.invalid('phone')"
@@ -300,7 +300,7 @@ const authStore = useAuthStore();
 const ability = useAbility();
 const USER_ID = authStore.getUserId;
 const isLoading = ref(false)
-const countryCode = ref("SA");
+const countryCode = ref("IE");
 const results = ref();
 const formData = ref({
   id: '',
@@ -366,9 +366,10 @@ const fetchAdminRoles = async () => {
     const response = await httpClient.get(`${import.meta.env.VITE_PUBLIC_AUTH_AdMIN_API}/admin/roles`)
     const result = handleResponse(response);
     if (result.success) {
-      // Filter out Super Admin role
-      isAdminList.value = result.data.data.filter(role =>
-        role.name.toLowerCase() !== 'super admin'
+      // Filter out platform-level roles (Product Owner, Super Admin)
+      const platformRoles = ['product owner', 'super admin'];
+      isAdminList.value = result.data.data.filter((role) =>
+        !platformRoles.includes(role.name.toLowerCase())
       )
       if (isAdminList.value.length > 0) {
         form.value.roleId = isAdminList.value[0].id

@@ -204,16 +204,18 @@ const isOpenViewInvoice = ref(false)
 const isAllView = async (Uuid: any) => {
 	try {
 		isOpenViewInvoice.value = true
+		isloading.value = true
 		// const response = await axios.get(`${import.meta.env.VITE_PUBLIC_SUPPLIER_API_URL}/invoices/${Uuid}`)
 		const response = await httpClient.get(`${import.meta.env.VITE_PUBLIC_SUPPLIER_API_URL}/invoices/${Uuid}`)
 		// const response = await apiService.supplier.delete(isAmountInvoiceId.value);
 		const result = handleResponse(response);
-		console.log('rtwtwtwrt', result)
 		if (result.success) {
-			isListInvoice.value = result.data.data
+			// API may return { data: {...} } or the invoice object directly.
+			isListInvoice.value = result.data?.data ?? result.data ?? null;
 		}
 	} catch (error) {
 		const result = handleError(error);
+		isListInvoice.value = null;
 	} finally {
 		isloading.value = false;
 	}
@@ -221,6 +223,38 @@ const isAllView = async (Uuid: any) => {
 const closeInvoiceView = () => {
 	isOpenViewInvoice.value = false;
 };
+
+const deletePurchaseInvoice = async (invoiceId: string) => {
+	pendingDeleteInvoiceId.value = invoiceId;
+	deleteConfirmationModal.value = true;
+};
+
+const closeDeleteInvoiceModal = () => {
+	deleteConfirmationModal.value = false;
+	pendingDeleteInvoiceId.value = null;
+};
+
+const confirmDeletePurchaseInvoice = async () => {
+	if (!pendingDeleteInvoiceId.value) return;
+
+	try {
+		isloading.value = true;
+		const response = await httpClient.delete(`${import.meta.env.VITE_PUBLIC_SUPPLIER_API_URL}/invoices/${pendingDeleteInvoiceId.value}`, {
+			params: { user_id: USER_ID },
+		});
+		const result = handleResponse(response);
+		if (result.success) {
+			closeDeleteInvoiceModal();
+			await getUsers();
+		}
+	} catch (error) {
+		handleError(error);
+	} finally {
+		isloading.value = false;
+	}
+};
+const deleteConfirmationModal = ref(false);
+const pendingDeleteInvoiceId = ref<string | null>(null);
 const ability = useAbility();
 
 </script>
@@ -263,6 +297,14 @@ const ability = useAbility();
             </template>
             <a href="#" class="bg-[#96837f33] p-2 rounded-md" @click="isAllView(data.value.id)">
               <Lucide icon="Eye" class="w-4 h-4 text-gray-600" />
+            </a>
+            <a
+              v-if="ability.can('delete', 'purchaseInvoice')"
+              href="#"
+              class="bg-red-100 p-2 rounded-md cursor-pointer"
+              @click.prevent="deletePurchaseInvoice(data.value.id)"
+            >
+              <Lucide icon="Trash2" class="w-4 h-4 text-red-600" />
             </a>
           </div>
         </template>
@@ -324,6 +366,26 @@ const ability = useAbility();
 
   <InvoiceModel :isListInvoice="isListInvoice" @closeViewInvoice="closeInvoiceView"
                 :isOpenViewInvoice="isOpenViewInvoice" />
+
+  <Dialog :open="deleteConfirmationModal" @close="closeDeleteInvoiceModal">
+    <Dialog.Panel>
+      <div class="p-5 text-center">
+        <Lucide icon="AlertTriangle" class="w-16 h-16 mx-auto mt-3 text-warning"/>
+        <div class="mt-5 text-3xl">{{ $t('common.areYouSure') }}</div>
+        <div class="mt-2 text-slate-500">
+          {{ $t('common.deleteConfirmation') }}
+        </div>
+      </div>
+      <div class="px-5 pb-8 text-center">
+        <Button variant="outline-secondary" type="button" @click="closeDeleteInvoiceModal" class="w-24 mr-1">
+          {{ $t('common.cancel') }}
+        </Button>
+        <Button variant="danger" type="button" class="ml-4 w-24" @click="confirmDeletePurchaseInvoice">
+          {{ $t('common.delete') }}
+        </Button>
+      </div>
+    </Dialog.Panel>
+  </Dialog>
 </template>
 <style scoped>
 .switch {

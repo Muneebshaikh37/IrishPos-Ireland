@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import "@/assets/css/themes/enigma/side-nav.css";
+import logoUrl from "@/assets/images/logo-jaldi.png";
 import { useRoute, useRouter } from "vue-router";
 import Tippy from "@/components/Base/Tippy";
 import Lucide from "@/components/Base/Lucide";
 import TopBar from "@/components/Themes/Enigma/TopBar";
 import MobileMenu from "@/components/MobileMenu";
 import { useMenuStore } from "../../../stores/menu";
+import { useAuthStore } from "@/stores/auth";
 import {
   type ProvideForceActiveMenu,
   forceActiveMenu,
@@ -27,8 +29,18 @@ const setFormattedMenu = (
   Object.assign(formattedMenu, computedFormattedMenu);
 };
 const menuStore = useMenuStore();
+const authStore = useAuthStore();
 const menu = computed(() => nestedMenu(menuStore.menu("side-menu"), route));
 const windowWidth = ref(window.innerWidth);
+const sidebarStoreName = computed(
+  () => authStore.user?.store_name || authStore.user?.name || "Storefront"
+);
+// Product Owner is a platform-level role; show brand logo instead of a name.
+const isProductOwnerRole = computed(() => {
+  const role = authStore.user?.role;
+  const roles = (authStore.user as any)?.roles;
+  return role === "Product Owner" || (Array.isArray(roles) && roles.includes("Product Owner"));
+});
 
 provide<ProvideForceActiveMenu>("forceActiveMenu", (pageName: string) => {
   forceActiveMenu(route, pageName);
@@ -78,8 +90,19 @@ onMounted(() => {
     <TopBar layout="side-menu" />
     <div class="flex overflow-hidden">
       <!-- BEGIN: Side Menu -->
-      <nav class="side-nav  sfdf w-[100px] xl:w-[260px] px-5 pb-16 overflow-x-hidden z-50 pt-32 -mt-4 hidden md:block">
-        <ul>
+      <nav class="side-nav sidebar-refresh w-[100px] xl:w-[280px] px-4 pb-8 overflow-x-hidden z-50 pt-24 -mt-2 hidden md:block">
+        <div class="rounded-3xl bg-primary/95 px-3 py-4 shadow-2xl ring-1 ring-white/20 backdrop-blur-sm">
+          <div class="sidebar-brand mb-4 rounded-2xl bg-white/10 px-3 py-4">
+            <div v-if="isProductOwnerRole" class="flex items-center justify-center">
+              <img :src="logoUrl" alt="Logo" class="h-10 w-auto object-contain" />
+            </div>
+            <h2 v-else class="sidebar-store-name text-center">
+              {{ sidebarStoreName }}
+            </h2>
+            <p class="mt-3 text-center text-xs font-medium uppercase tracking-wide text-white/80">Navigation</p>
+          </div>
+
+          <ul class="pb-2">
           <template v-for="(menu, menuKey) in formattedMenu">
             <li
               v-if="menu == 'divider'"
@@ -254,7 +277,13 @@ onMounted(() => {
               </Transition>
             </li>
           </template>
-        </ul>
+          </ul>
+
+          <div class="sidebar-footer rounded-2xl bg-white/10 px-3 py-3 text-white/85">
+            <p class="text-xs font-medium uppercase tracking-wide text-white/70">Need help?</p>
+            <p class="mt-1 text-xs leading-5">Contact support if you face any issue while managing your store.</p>
+          </div>
+        </div>
       </nav>
       <!-- END: Side Menu -->
       <!-- BEGIN: Content -->
@@ -270,3 +299,85 @@ onMounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.sidebar-refresh :deep(.side-nav__divider) {
+  background-color: rgba(255, 255, 255, 0.22);
+  margin: 0.75rem 0;
+}
+
+.sidebar-refresh .sidebar-brand,
+.sidebar-refresh .sidebar-footer {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.sidebar-refresh .sidebar-store-name {
+  font-size: 1.125rem;
+  line-height: 1.45rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  word-break: break-word;
+}
+
+.sidebar-refresh :deep(.side-menu) {
+  height: 46px;
+  border-radius: 14px;
+  padding-left: 0.85rem;
+  margin-bottom: 0.35rem;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.2s ease;
+}
+
+.sidebar-refresh :deep(.side-menu .side-menu__icon) {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-refresh :deep(.side-menu .side-menu__title) {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.sidebar-refresh :deep(.side-menu:hover:not(.side-menu--active):not(.side-menu--open)) {
+  background-color: rgba(255, 255, 255, 0.14);
+  transform: translateX(2px);
+}
+
+.sidebar-refresh :deep(> ul > li > .side-menu.side-menu--active) {
+  background-color: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.sidebar-refresh :deep(> ul > li > .side-menu.side-menu--active .side-menu__icon),
+.sidebar-refresh :deep(> ul > li > .side-menu.side-menu--active .side-menu__title) {
+  color: rgb(30 41 59);
+}
+
+.sidebar-refresh :deep(> ul > li > ul) {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 0.35rem 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-refresh :deep(> ul > li > ul > li > .side-menu) {
+  height: 42px;
+  margin-bottom: 0.2rem;
+}
+
+.sidebar-refresh :deep(> ul > li > ul > li > .side-menu.side-menu--active) {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-refresh :deep(> ul > li > ul > li > .side-menu.side-menu--active .side-menu__icon),
+.sidebar-refresh :deep(> ul > li > ul > li > .side-menu.side-menu--active .side-menu__title) {
+  color: #ffffff;
+}
+
+.sidebar-refresh :deep(.side-menu::before),
+.sidebar-refresh :deep(.side-menu::after),
+.sidebar-refresh :deep(> ul > li > ul::before),
+.sidebar-refresh :deep(> ul > li > ul > li > ul::before) {
+  display: none !important;
+}
+</style>

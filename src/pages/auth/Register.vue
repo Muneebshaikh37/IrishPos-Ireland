@@ -34,7 +34,7 @@ const isLoading = ref(false);
 const termsAccepted = ref(false);
 const isPasswordVisible = ref(false);
 const isConfirmPasswordVisible = ref(false);
-const countryCode = ref("SA");
+const countryCode = ref("IE");
 const results = ref();
 
 // Toggle password visibility
@@ -111,10 +111,10 @@ const register = async () => {
                 :noFlags="true"
                 :noExample="true"
                 :fetchCountry="false"
-                :default-country="'SA'"
+                :default-country="'IE'"
                 :block="true"
                 v-model:country-code="countryCode"
-                :onlyCountries="['SA']"
+                :onlyCountries="['IE']"
                 class="w-full"
                 @update="results = $event"
             />

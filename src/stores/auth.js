@@ -57,9 +57,12 @@ export const useAuthStore = defineStore('auth', {
                         : (Array.isArray(rolesFromUser) ? rolesFromUser : []));
                     const roles = allRoles;
 
+                    // Allowed modules (null = unrestricted; array of lowercase strings = restricted)
+                    const allowedModules = payload.allowed_modules ?? apiUser.allowed_modules ?? null;
+
                     // Save token and user details to state and localStorage
                     this.token = token;
-                    this.user = {id, user_id, name, email, phone, vat_number, address, store_name, permissions, role: effectiveRole, roles};
+                    this.user = {id, user_id, name, email, phone, vat_number, address, store_name, permissions, role: effectiveRole, roles, allowed_modules: allowedModules};
                     this.user_id = user_id; // Set user_id in the store
 
                     localStorage.setItem('token', token);
@@ -74,8 +77,8 @@ export const useAuthStore = defineStore('auth', {
                             const [subject, action] = String(permissionName).split(':');
                             return { action: action.toLowerCase(), subject };
                         }).filter(rule => rule !== null);
-                        // Give Admin and Super Admin full access (matches original behavior)
-                        if (effectiveRole === 'Super Admin' || effectiveRole === 'Admin') {
+                        // Give platform-level roles full access
+                        if (effectiveRole === 'Product Owner' || effectiveRole === 'Super Admin' || effectiveRole === 'Admin' || effectiveRole === 'Shop Owner') {
                             rules.push({ action: 'manage', subject: 'all' });
                         }
                         this.ability.update(rules);
@@ -86,6 +89,7 @@ export const useAuthStore = defineStore('auth', {
                     // Check if user needs to select package (trial users or no active subscription)
                     const trialStatus = payload.trial_status ?? apiUser.trial_status ?? null;
                     const currentSubscription = payload.current_subscription ?? apiUser.current_subscription ?? null;
+                    const isProductOwner = effectiveRole === 'Product Owner' || (Array.isArray(roles) && roles.includes('Product Owner'));
                     const isSuperAdmin = effectiveRole === 'Super Admin' || (Array.isArray(roles) && roles.includes('Super Admin'));
                     const isSubUser = user_id !== id; // Check if sub-user (has different user_id than id)
 
@@ -117,6 +121,12 @@ export const useAuthStore = defineStore('auth', {
                     // Load VAT + currency before navigation so the first screen (dashboard) formats money correctly
                     this.VAT = await this.fetchVat(user_id);
                     await this.syncCurrencySetting(user_id);
+
+                    // Redirect Product Owner to their dashboard
+                    if (isProductOwner) {
+                        router.push('/product-owner/dashboard');
+                        return;
+                    }
 
                     // Redirect Super Admin to their dashboard
                     if (isSuperAdmin) {

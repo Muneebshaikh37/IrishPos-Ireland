@@ -14,6 +14,7 @@ import ProfileUrl from "@/assets/images/profile.png";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { getBreadcrumbTranslationKey } from "@/helpers/breadcrumbHelper.js";
+import { formatDateTime } from "@/utils/helper";
 
 const authStore = useAuthStore();
 const notificationStore = useNotification();
@@ -388,7 +389,7 @@ function addProtocolToUrl(url) {
                     class="ml-auto text-xs text-slate-400 whitespace-nowrap"
                     :class="{ 'font-bold text-slate-500': !notification.is_read }"
                 >
-                  {{ notification.created_at }}
+                  {{ formatDateTime(notification.created_at) }}
                 </div>
               </div>
               <div

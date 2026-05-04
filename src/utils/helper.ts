@@ -19,6 +19,17 @@ const formatDate = (date: string, format: string) => {
   return dayjs(date).format(format);
 };
 
+/**
+ * Format an ISO timestamp like "2026-05-04T19:57:39.000000Z" into the
+ * compact local format "2026-05-04 19:57" used in tables across the app.
+ * Returns an empty string for falsy/invalid input so it's safe in templates.
+ */
+const formatDateTime = (date: string | null | undefined): string => {
+  if (!date) return "";
+  const d = dayjs(date);
+  return d.isValid() ? d.format("YYYY-MM-DD HH:mm") : "";
+};
+
 const capitalizeFirstLetter = (string: string) => {
   if (string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -202,6 +213,7 @@ const slideDown = (
 export {
   cutText,
   formatDate,
+  formatDateTime,
   capitalizeFirstLetter,
   onlyNumber,
   formatCurrency,

@@ -26,6 +26,7 @@
   "status": "Status",
   "actions": "Actions",
   "serviceStatus": "Service Status",
+  "showInTiles": "Show in selling tiles",
   "deleteConfirmation": "Delete Confirmation",
   "deleteConfirmationMessage": "Are you sure you want to delete this service?",
   "cancel": "Cancel",

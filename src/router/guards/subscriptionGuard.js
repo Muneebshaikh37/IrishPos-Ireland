@@ -25,9 +25,11 @@ export function useSubscriptionGuard() {
 
       const user = JSON.parse(userData);
 
-      // Skip check for Super Admin
-      const isSuperAdmin = user?.role === 'Super Admin' || (Array.isArray(user?.roles) && user.roles.includes('Super Admin'));
-      if (isSuperAdmin) {
+      // Skip check for platform-level roles (Product Owner, Super Admin)
+      const platformRoles = ['Product Owner', 'Super Admin'];
+      const userRoles = [user?.role, ...(Array.isArray(user?.roles) ? user.roles : [])].filter(Boolean);
+      const isPlatformRole = platformRoles.some(r => userRoles.includes(r));
+      if (isPlatformRole) {
         return true;
       }
 

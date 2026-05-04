@@ -19,7 +19,7 @@ const createFormData = ref({
 	email: "",
 	address: "",
 	vat_number: "",
-	country_code: "+966",
+	country_code: "+353",
 	phone: "",
 })
 
@@ -60,7 +60,7 @@ const isfetchProfile = async () => {
 }
 const isFormattedPhone = computed({
   get: () => {
-    return createFormData.value.phone.replace(/^\+966/, "");
+    return createFormData.value.phone.replace(/^\+353/, "");
   },
   set: (value) => {
     createFormData.value.phone = value;
@@ -113,7 +113,7 @@ onMounted(() => {
               <div class="flex item-center justify-center">
                 <p
                     class="bg-gray-100 flex items-center justify-center w-[55px] text-sm border border-slate-200 shadow-sm rounded-l-md rounded-r-none">
-                  +966</p>
+                  +353</p>
                 <FormInput id="phone" v-model="isFormattedPhone" class="rounded-l-none" type="text"
                            :placeholder="$t('company-profile.enterPhone')" :class="{ 'border-red-500': form.invalid('phone') }" />
               </div>

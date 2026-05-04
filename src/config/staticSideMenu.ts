@@ -11,6 +11,8 @@ export type StaticSideMenuItem = {
   status: boolean;
   permissions: string[] | null;
   is_parent: boolean;
+  /** Lowercase module key matched against package allowed_modules. null = always visible. */
+  module_key: string | null;
   children: StaticSideMenuItem[];
 };
 
@@ -25,6 +27,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: null, // always visible
     children: [],
   },
   {
@@ -37,6 +40,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: null, // always visible
     children: [],
   },
   {
@@ -49,6 +53,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: "inventory",
     children: [
       {
         id: "inv-products",
@@ -60,6 +65,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
       {
@@ -72,6 +78,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
       {
@@ -84,6 +91,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
       {
@@ -96,6 +104,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
       {
@@ -108,6 +117,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
       {
@@ -120,6 +130,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
       {
@@ -132,6 +143,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "inventory",
         children: [],
       },
     ],
@@ -146,6 +158,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: "pos",
     children: [
       {
         id: "pos-registers",
@@ -157,6 +170,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "pos",
         children: [],
       },
       {
@@ -169,6 +183,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "pos",
         children: [],
       },
       {
@@ -181,6 +196,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "pos",
         children: [],
       },
       {
@@ -193,6 +209,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "pos",
         children: [],
       },
       {
@@ -205,6 +222,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "pos",
         children: [],
       },
     ],
@@ -219,6 +237,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: "purchasing",
     children: [
       {
         id: "pur-supplier",
@@ -230,6 +249,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "purchasing",
         children: [],
       },
       {
@@ -242,6 +262,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "purchasing",
         children: [],
       },
       {
@@ -254,6 +275,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "purchasing",
         children: [],
       },
     ],
@@ -268,6 +290,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: null, // always visible
     children: [],
   },
   {
@@ -280,6 +303,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: "reporting",
     children: [],
   },
   {
@@ -292,6 +316,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
     status: true,
     permissions: null,
     is_parent: false,
+    module_key: "accounting",
     children: [
       {
         id: "acc-coa",
@@ -303,6 +328,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "accounting",
         children: [],
       },
       {
@@ -315,6 +341,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "accounting",
         children: [],
       },
       {
@@ -327,6 +354,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "accounting",
         children: [],
       },
       {
@@ -339,6 +367,7 @@ export const STATIC_SHOP_SIDE_MENU: StaticSideMenuItem[] = [
         status: true,
         permissions: null,
         is_parent: false,
+        module_key: "accounting",
         children: [],
       },
     ],
@@ -370,13 +399,40 @@ export const STATIC_SUPERADMIN_SIDE_MENU: StaticSideMenuItem[] = [
     is_parent: false,
     children: [],
   },
+];
+
+export const STATIC_PRODUCT_OWNER_SIDE_MENU: StaticSideMenuItem[] = [
   {
-    id: "sa-pkgs",
+    id: "po-dash",
+    menu_name: "Dashboard",
+    url: "/product-owner/dashboard",
+    icon: "LayoutDashboard",
+    title: "Dashboard",
+    page_name: "ProductOwnerDashboard",
+    status: true,
+    permissions: null,
+    is_parent: false,
+    children: [],
+  },
+  {
+    id: "po-superadmins",
+    menu_name: "Super Admins",
+    url: "/product-owner/super-admins",
+    icon: "Users",
+    title: "Super Admins",
+    page_name: "ProductOwnerSuperAdmins",
+    status: true,
+    permissions: null,
+    is_parent: false,
+    children: [],
+  },
+  {
+    id: "po-packages",
     menu_name: "Packages",
-    url: "/superadmin/packages",
+    url: "/product-owner/packages",
     icon: "Package",
     title: "Packages",
-    page_name: "SuperAdminPackages",
+    page_name: "ProductOwnerPackages",
     status: true,
     permissions: null,
     is_parent: false,

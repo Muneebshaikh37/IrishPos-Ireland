@@ -35,6 +35,11 @@ const pagination = ref<any>({
   to: 0,
   links: [],
 });
+const shopLimit = ref<{ max: number | null; used: number; is_reached: boolean }>({
+  max: null,
+  used: 0,
+  is_reached: false,
+});
 
 const getShopName = (shop: any) => {
   return (shop?.name || shop?.store_name || 'Unnamed Shop').toString();
@@ -94,7 +99,7 @@ const fetchShops = async (page: number = 1) => {
       // Accept common envelope shapes
       const data = Array.isArray(result.data?.data) ? result.data.data : (result.data?.shops || result.data || []);
       shops.value = Array.isArray(data) ? data : [];
-      
+
       // Parse pagination metadata
       if (result.data?.meta) {
         pagination.value = {
@@ -106,6 +111,11 @@ const fetchShops = async (page: number = 1) => {
           to: result.data.meta.to || 0,
           links: result.data.meta.links || [],
         };
+      }
+
+      // Parse shop limit info returned by the backend
+      if (result.data?.shop_limit) {
+        shopLimit.value = result.data.shop_limit;
       }
     } else {
       console.error('[SuperAdmin] Failed to load shops:', result);
@@ -194,12 +204,43 @@ onMounted(() => {
 
 <template>
   <div class="mt-6 intro-y">
-    <div class="grid grid-cols-2 items-center gap-4">
-      <h2 class="text-lg font-medium" :class="locale === 'ar' ? 'text-right col-start-1' : 'text-left col-start-1'">{{ $t('superadmin.shops.title') }}</h2>
-      <Button variant="primary" @click="router.push({ name: 'SuperAdminCreateShop' })" class="flex items-center gap-2 w-auto justify-self-end" :class="locale === 'ar' ? 'col-start-2' : 'col-start-2'">
-        <Lucide icon="Plus" class="w-4 h-4" :class="locale === 'ar' ? 'ml-2' : 'mr-2'" />
-        {{ $t('superadmin.shops.createShop') }}
-      </Button>
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3">
+        <h2 class="text-lg font-medium">{{ $t('superadmin.shops.title') }}</h2>
+        <!-- Shop limit badge -->
+        <span
+          v-if="shopLimit.max !== null"
+          class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium"
+          :class="shopLimit.is_reached
+            ? 'bg-red-100 text-red-700 border border-red-200'
+            : 'bg-green-100 text-green-700 border border-green-200'"
+        >
+          <Lucide icon="Store" class="w-3 h-3" />
+          {{ shopLimit.used }} / {{ shopLimit.max }} shops
+          <span v-if="shopLimit.is_reached" class="font-semibold">— Limit reached</span>
+        </span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <!-- Limit warning tooltip when at max -->
+        <span
+          v-if="shopLimit.is_reached"
+          class="text-xs text-red-600 flex items-center gap-1"
+        >
+          <Lucide icon="AlertCircle" class="w-3.5 h-3.5" />
+          Upgrade your package to add more shops
+        </span>
+        <Button
+          variant="primary"
+          :disabled="shopLimit.is_reached"
+          :class="shopLimit.is_reached ? 'opacity-50 cursor-not-allowed' : ''"
+          @click="shopLimit.is_reached ? null : router.push({ name: 'SuperAdminCreateShop' })"
+          class="flex items-center gap-2 w-auto"
+        >
+          <Lucide icon="Plus" class="w-4 h-4" :class="locale === 'ar' ? 'ml-2' : 'mr-2'" />
+          {{ $t('superadmin.shops.createShop') }}
+        </Button>
+      </div>
     </div>
 
     <!-- Search Bar -->

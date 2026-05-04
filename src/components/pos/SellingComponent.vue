@@ -10,6 +10,23 @@
               @add-product="addProductToInvoice"
               @reAddProductToSearch="handleAddProduct"
           />
+          <div v-if="tileServices.length" class="mb-5">
+            <h3 class="mb-3 text-sm font-semibold text-slate-700">{{ $t('services.servicesHeading') }}</h3>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              <button
+                v-for="service in tileServices"
+                :key="service.id"
+                type="button"
+                class="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-left transition hover:bg-primary/10"
+                @click="addProductToInvoice({ product: service })"
+              >
+                <div class="text-sm font-medium text-slate-800 truncate">
+                  {{ service.name ?? service.name_en ?? service.name_ar }}
+                </div>
+                <div class="text-xs text-primary mt-1">{{ formatMoney(service.sale_price || 0) }}</div>
+              </button>
+            </div>
+          </div>
           <ProductList
               v-if="products.length > 0"
               :products="products"
@@ -44,6 +61,7 @@
         :open="isDialogVisible"
         :isLoading="isLoading"
         :totalSale="totalAfterDiscount"
+        :preselectedCustomer="checkinCustomer"
         @close="closeDialog"
         @confirm="handlePayment"
         @holdInvoice="handleHoldInvoice"
@@ -62,6 +80,7 @@
               <div class="flex justify-center mb-3">
                 <img src="@/assets/images/jaldi.png" alt="Jaldi Logo" class="h-12" />
               </div>
+              <h2 class="text-base font-medium mb-2">{{ storeName }}</h2>
                 
               <h4 class="text-sm font-medium mb-2">{{ $t('invoices.date') }}: <span>{{ isDataInvoice.date }}</span></h4>
               <h4 class="text-sm font-medium">{{ $t('invoices.customer') }}: <span v-if="isDataInvoice && isDataInvoice.customer_name">{{ isDataInvoice.customer_name }}</span> <span v-else>{{ $t('invoices.na') }}</span></h4>
@@ -121,7 +140,7 @@
               <h2 class="text-base font-medium text-gray-600 mb-1">{{ $t('invoices.invoiceNumber') }}: <span
                   class="text-gray-400">{{ isDataInvoice.invoice_number }}</span>
               </h2>
-              <h2 class="text-base font-medium text-gray-600 mb-1"> {{ USER.store_name }}
+              <h2 class="text-base font-medium text-gray-600 mb-1"> {{ storeName }}
               </h2>
               <h3 class="text-base font-medium text-gray-600 ">{{ USER.address }}</h3>
               <span class=" absolute top-3 right-3 p-1.5 cursor-pointer bg-[#324054] rounded-md" @click="printInvoice">
@@ -220,10 +239,14 @@ import {Dialog} from "@/components/Base/Headless";
 import InvoiceSkeleton from "@/components/globel/Skeleton/InvoiceSkeleton.vue";
 import Lucide from "@/components/Base/Lucide";
 import {decimalFormat} from "@/helpers/commonHelper";
+import { formatMoney } from "@/utils/currency";
 
 const authStore = useAuthStore();
 const USER_ID = authStore.getUserId;
 const USER = authStore.getUser;
+const storeName = computed(() => {
+  return USER?.store_name || USER?.name || localStorage.getItem("store_name") || "Store";
+});
 
 import {
   calculateAdditionalDiscount,
@@ -257,6 +280,15 @@ const discountMode = ref("percent"); // "percent" or "fixed"
 const addedProductIds = ref(new Set());
 const addedServiceIds = ref(new Set());
 const serviceListRef = ref(null);
+const tileServices = computed(() => {
+  const allProducts = productStore.getProducts || [];
+  return allProducts.filter((item) => {
+    const isService = item.is_service === true || item.is_service === 1;
+    const showInTiles = item.show_in_tiles === true || item.show_in_tiles === 1;
+    const alreadyAdded = addedServiceIds.value.has(`${item.id}`);
+    return isService && showInTiles && !alreadyAdded;
+  });
+});
 
 // Calculations
 const subtotal = computed(() => {
@@ -443,7 +475,8 @@ function addServiceToInvoice(product) {
     return;
   }
 
-  const { id, name_en, sale_price } = product;
+  const { id, sale_price } = product;
+  const displayName = product.name ?? product.name_en ?? product.name_ar ?? "";
   const serviceIdentifier = `${id}`;
 
   const existingService = services.value.find(s => s.id === product.id);
@@ -456,7 +489,8 @@ function addServiceToInvoice(product) {
   } else {
     services.value.push({
       id,
-      name_en,
+      name_en: displayName,
+      name: displayName,
       sale_price: salePrice,
       discount: 0,
       totalPrice: salePrice,
@@ -587,6 +621,9 @@ function closeDialog() {
 
 // const paymentType = ref("Cash");
 const selectedCustomerId = ref(null); // Store the selected customer_id
+// Pre-fill data from a booking check-in
+const checkinCustomer = ref(null);   // { id, name } passed to PaymentDialog for UI pre-select
+const checkinTaskId = ref(null);     // existing task ID — sent with invoice to avoid duplicate job
 
 const handleSelectCustomer = (customerId) => {
   selectedCustomerId.value = customerId; // Update the selected customer ID
@@ -628,6 +665,8 @@ async function handlePayment(paymentMethods) {
       total_discount: discountAmount.value + additionalDiscountAmount.value,
       vat_amount: tax.value,
       grand_total: totalAfterDiscount.value,
+      // Link to existing booking task to avoid creating a duplicate job
+      ...(checkinTaskId.value ? { booking_task_id: checkinTaskId.value } : {}),
       is_service: services.value.length > 0 ? 1 : 0, // 1 if ANY item is a service, 0 otherwise (for multipart/form-data)
       items: [
         ...products.value.map((product) => ({
@@ -701,6 +740,8 @@ async function handleHoldInvoice() {
       total_discount: discountAmount.value + additionalDiscountAmount.value,
       vat_amount: tax.value,
       grand_total: totalAfterDiscount.value,
+      // Link to existing booking task to avoid creating a duplicate job
+      ...(checkinTaskId.value ? { booking_task_id: checkinTaskId.value } : {}),
       is_service: services.value.length > 0 ? 1 : 0, // 1 if ANY item is a service, 0 otherwise (for multipart/form-data)
       items: [
         ...products.value.map((product) => ({
@@ -758,6 +799,10 @@ function resetComponentState() {
   discountMode.value = "percent";
   addedProductIds.value.clear();
   addedServiceIds.value.clear();
+  // Clear booking check-in state so it doesn't carry over to the next sale
+  checkinCustomer.value = null;
+  checkinTaskId.value = null;
+  selectedCustomerId.value = null;
   const productSearchRef = ref(null);
   if (productSearchRef.value) {
     productSearchRef.value.resetSearch();
@@ -834,5 +879,42 @@ const totalVatIncl = computed(() => {
 onMounted(() => {
   productStore.fetchProducts();
   workerStore.fetchWorkers();
+
+  // ── Pre-fill from booking check-in ──────────────────────────────────────
+  // When shop owner clicks "Check In" on a job, the job data is stored in
+  // sessionStorage. Read it here, pre-select the customer and add the service
+  // to the cart, then clear the entry so it doesn't persist across navigations.
+  const checkin = sessionStorage.getItem('pos_checkin');
+  if (checkin) {
+    try {
+      const data = JSON.parse(checkin);
+      sessionStorage.removeItem('pos_checkin');
+
+      // Pre-select customer (both the ID for the payload and the object for PaymentDialog UI)
+      if (data.customer_id) {
+        selectedCustomerId.value = data.customer_id;
+        checkinCustomer.value = { id: data.customer_id, name: data.customer_name ?? '' };
+      }
+
+      // Store booking task ID so the invoice links to the existing job instead of creating a new one
+      if (data.task_id) {
+        checkinTaskId.value = data.task_id;
+      }
+
+      // Pre-add service to cart
+      if (data.service_id) {
+        addServiceToInvoice({
+          id:        data.service_id,
+          name:      data.service_name ?? '',
+          name_en:   data.service_name ?? '',
+          name_ar:   data.service_name ?? '',
+          sale_price: parseFloat(data.sale_price) || 0,
+        });
+      }
+    } catch {
+      sessionStorage.removeItem('pos_checkin');
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 });
 </script>

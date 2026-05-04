@@ -3,6 +3,7 @@
   import {
     FormInput,
     FormLabel,
+    FormSwitch,
     FormTextarea,
   } from "@/components/Base/Form";
   import Button from "@/components/Base/Button";
@@ -39,6 +40,7 @@
     sale_price: "",
     _method: "PUT",
     is_service: true,
+    show_in_tiles: false,
   })
    
   const form = reactive(new ErrorHandler());
@@ -67,6 +69,7 @@
             ?? "",
           sale_price: serviceData.sale_price || "",
           image: serviceData.image || "",
+          show_in_tiles: Boolean(serviceData.show_in_tiles),
         };
         const elDropzoneMultipleRef = dropzoneMultipleRef.value;
         if (elDropzoneMultipleRef && result.data.data.image) {
@@ -173,6 +176,17 @@
               <FormTextarea v-model="createFormData.description" class="py-2 pl-4 resize-none" :rows="3"
                 :placeholder="$t('services.descriptionSinglePlaceholder')">
               </FormTextarea>
+            </div>
+            <div class="col-span-6">
+              <FormLabel>{{ $t('services.showInTiles') }}</FormLabel>
+              <FormSwitch class="mt-2">
+                <FormSwitch.Input
+                  id="show-in-tiles-edit"
+                  v-model="createFormData.show_in_tiles"
+                  :checked="createFormData.show_in_tiles"
+                  type="checkbox"
+                />
+              </FormSwitch>
             </div>
           </div>
         </div>

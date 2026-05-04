@@ -21,6 +21,8 @@
   "enterJobDescription": "أدخل وصف الوظيفة",
   "create": "إنشاء",
   "update": "تحديث",
-  "assignedWorkers": "العمال المعينون"
+  "assignedWorkers": "العمال المعينون",
+  "completeJob": "إكمال المهمة",
+  "completing": "جاري الإكمال..."
 }
 
