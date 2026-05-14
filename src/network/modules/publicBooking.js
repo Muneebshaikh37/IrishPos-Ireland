@@ -19,6 +19,11 @@ export default {
         return client.get('/booking/shops', { params });
     },
 
+    /** Resolve a shop's public slug to its id + public profile. */
+    getShopBySlug(slug) {
+        return client.get(`/booking/by-slug/${slug}`);
+    },
+
     /** List services offered by a specific shop */
     getServices(shopId) {
         return client.get(`/booking/${shopId}/services`);

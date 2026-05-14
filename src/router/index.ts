@@ -21,6 +21,7 @@ import RegisterInvoice from "../pages/Pos/RegisterInvoice.vue"
 
 import Customer from "../pages/Pos/Customers/index.vue"
 import Jobs from "../pages/Pos/Jobs/index.vue"
+import Bookings from "../pages/Pos/Bookings/index.vue"
 import Quotations from "../pages/Pos/Quotations/index.vue"
 import ListSupplier from '../pages/Purchasing/Supplier/list.vue';
 
@@ -554,6 +555,13 @@ const routes: any = [
         meta: {action: "list", subject: "jobs"},
       },
       {
+        path: "/pos/bookings",
+        name: "Bookings",
+        component: Bookings,
+        beforeEnter: combineGuards(useAuthGuard()),
+        meta: {action: "list", subject: "booking"},
+      },
+      {
         path:"/pos/quotation",
         name: "Quotations",
         component: Quotations,
@@ -880,6 +888,12 @@ const routes: any = [
   {
     path: '/book',
     name: 'PublicBooking',
+    component: () => import('../pages/Public/Booking.vue'),
+  },
+  // Per-shop public URL: pre-fills the shop and skips the shop picker.
+  {
+    path: '/book/:slug',
+    name: 'PublicBookingBySlug',
     component: () => import('../pages/Public/Booking.vue'),
   },
   // ──────────────────────────────────────────────────────────────────────────

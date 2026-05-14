@@ -1,6 +1,12 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import publicBookingApi from '@/network/modules/publicBooking';
+
+const route = useRoute();
+// If the URL is /book/:slug we lock the booking to that shop and skip step 1.
+const slugParam = computed(() => route.params?.slug || null);
+const slugNotFound = ref(false);
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const step = ref(1); // 1=Shop  2=Service  3=DateTime  4=Details  5=Confirmed
@@ -46,7 +52,14 @@ const filteredShops = computed(() => {
   );
 });
 
-const stepLabels = ['Shop', 'Service', 'Date & Time', 'Your Details'];
+// When entered via /book/:slug the shop is fixed, so drop the first step
+// from the progress bar.
+const stepLabels = computed(() =>
+  slugParam.value
+    ? ['Service', 'Date & Time', 'Your Details']
+    : ['Shop', 'Service', 'Date & Time', 'Your Details']
+);
+const stepOffset = computed(() => (slugParam.value ? 1 : 0));
 
 // ─── Data fetchers ────────────────────────────────────────────────────────────
 async function fetchShops() {
@@ -111,12 +124,14 @@ function selectService(service) {
 }
 
 function goToStep(n) {
-  // Only allow going back
-  if (n < step.value) step.value = n;
+  // When locked to a shop via slug, never go back to step 1 (shop picker).
+  const minStep = slugParam.value ? 2 : 1;
+  if (n < step.value && n >= minStep) step.value = n;
 }
 
 function goBack() {
-  if (step.value > 1) step.value--;
+  const minStep = slugParam.value ? 2 : 1;
+  if (step.value > minStep) step.value--;
 }
 
 function proceedToDetails() {
@@ -161,6 +176,20 @@ async function submitBooking() {
 }
 
 function bookAnother() {
+  // When entered via /book/:slug we stay locked to that shop and just
+  // reset the rest of the flow.
+  if (slugParam.value && selectedShop.value) {
+    step.value = 2;
+    selectedService.value = null;
+    selectedDate.value = '';
+    selectedTime.value = '';
+    slots.value = [];
+    form.value = { customer_name: '', customer_phone: '', customer_country_code: '+353', notes: '' };
+    confirmation.value = null;
+    submitError.value = '';
+    fetchServices(selectedShop.value.id);
+    return;
+  }
   step.value = 1;
   selectedShop.value = null;
   selectedService.value = null;
@@ -195,7 +224,32 @@ function formatPrice(p) {
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
-onMounted(() => fetchShops());
+async function initFromSlug(slug) {
+  shopsLoading.value = true;
+  try {
+    const res = await publicBookingApi.getShopBySlug(slug);
+    const shop = res.data?.data ?? null;
+    if (!shop) {
+      slugNotFound.value = true;
+      return;
+    }
+    selectedShop.value = shop;
+    step.value = 2;
+    fetchServices(shop.id);
+  } catch {
+    slugNotFound.value = true;
+  } finally {
+    shopsLoading.value = false;
+  }
+}
+
+onMounted(() => {
+  if (slugParam.value) {
+    initFromSlug(slugParam.value);
+  } else {
+    fetchShops();
+  }
+});
 </script>
 
 <template>
@@ -216,23 +270,23 @@ onMounted(() => fetchShops());
     </header>
 
     <!-- Progress steps (steps 1-4 only; step 5 = success) -->
-    <div v-if="step < 5" class="bg-white border-b px-6 py-3">
+    <div v-if="step < 5 && !slugNotFound" class="bg-white border-b px-6 py-3">
       <div class="max-w-2xl mx-auto flex items-center gap-0">
         <template v-for="(label, idx) in stepLabels" :key="idx">
           <button
             class="flex items-center gap-1.5 text-xs font-medium transition-colors"
-            :class="step === idx + 1 ? 'text-emerald-700' : step > idx + 1 ? 'text-emerald-500 cursor-pointer' : 'text-gray-400 cursor-default'"
-            @click="goToStep(idx + 1)"
+            :class="step === idx + 1 + stepOffset ? 'text-emerald-700' : step > idx + 1 + stepOffset ? 'text-emerald-500 cursor-pointer' : 'text-gray-400 cursor-default'"
+            @click="goToStep(idx + 1 + stepOffset)"
           >
             <span
               class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-              :class="step > idx + 1
+              :class="step > idx + 1 + stepOffset
                 ? 'bg-emerald-500 text-white'
-                : step === idx + 1
+                : step === idx + 1 + stepOffset
                   ? 'bg-emerald-700 text-white'
                   : 'bg-gray-200 text-gray-500'"
             >
-              <template v-if="step > idx + 1">✓</template>
+              <template v-if="step > idx + 1 + stepOffset">✓</template>
               <template v-else>{{ idx + 1 }}</template>
             </span>
             <span class="hidden sm:inline">{{ label }}</span>
@@ -246,8 +300,22 @@ onMounted(() => fetchShops());
     <main class="flex-1 px-4 py-8">
       <div class="max-w-2xl mx-auto">
 
+        <!-- ── Slug not found ── -->
+        <div v-if="slugNotFound" class="text-center py-16">
+          <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Shop Not Found</h2>
+          <p class="text-gray-500 mb-6">The booking link you used doesn't match any shop.</p>
+          <a href="/book" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
+            Browse all shops
+          </a>
+        </div>
+
         <!-- ── STEP 1: Select Shop ── -->
-        <div v-if="step === 1">
+        <div v-if="step === 1 && !slugNotFound">
           <h2 class="text-xl font-bold text-gray-900 mb-1">Choose a Shop</h2>
           <p class="text-sm text-gray-500 mb-5">Select the shop you'd like to visit</p>
 
