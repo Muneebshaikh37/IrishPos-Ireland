@@ -10,5 +10,9 @@
   "enterPhone": "Enter Phone Number",
   "address": "Company Address",
   "enterAddress": "Enter Company Address",
-  "save": "Save"
+  "save": "Save",
+  "publicBookingLink": "Public Booking Link",
+  "publicBookingLinkHelp": "Share this URL with customers so they can book your services online.",
+  "copy": "Copy",
+  "copied": "Link copied!"
 }

@@ -21,6 +21,29 @@ const createFormData = ref({
 	country_code: "+353",
 	phone: "",
 })
+const shopSlug = ref("");
+const linkCopied = ref(false);
+
+const publicBookingUrl = computed(() =>
+	shopSlug.value ? `${window.location.origin}/book/${shopSlug.value}` : ""
+);
+
+async function copyBookingLink() {
+	if (!publicBookingUrl.value) return;
+	try {
+		await navigator.clipboard.writeText(publicBookingUrl.value);
+	} catch {
+		// Fallback for older browsers / non-HTTPS contexts.
+		const el = document.createElement('textarea');
+		el.value = publicBookingUrl.value;
+		document.body.appendChild(el);
+		el.select();
+		document.execCommand('copy');
+		document.body.removeChild(el);
+	}
+	linkCopied.value = true;
+	setTimeout(() => (linkCopied.value = false), 1800);
+}
 
 const isloading = ref(false)
 const form = reactive(new ErrorHandler());
@@ -66,6 +89,7 @@ const isfetchProfile = async () => {
 					country_code: profile.account?.country_code ?? "+353",
 					phone: profile.account?.phone ?? "",
 				};
+				shopSlug.value = profile.slug ?? "";
 			}
 		}
 	} catch (error) {
@@ -135,6 +159,27 @@ onMounted(() => {
               <template v-if="form.invalid('address')">
                 <div class="mt-2 text-xs text-red-600">{{ form.getError('address') }}</div>
               </template>
+            </div>
+            <div v-if="shopSlug" class="col-span-12">
+              <FormLabel>{{ $t('company-profile.publicBookingLink') }}</FormLabel>
+              <div class="flex items-center gap-2">
+                <FormInput
+                  :model-value="publicBookingUrl"
+                  type="text"
+                  readonly
+                  class="flex-1 bg-gray-50 cursor-text"
+                  @focus="(e) => e.target.select()"
+                />
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  class="px-4 whitespace-nowrap"
+                  @click="copyBookingLink"
+                >
+                  {{ linkCopied ? $t('company-profile.copied') : $t('company-profile.copy') }}
+                </Button>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">{{ $t('company-profile.publicBookingLinkHelp') }}</p>
             </div>
             <div class="col-span-12">
               <Button variant="primary" class="mr-2 px-6 mt-2 shadow-md" type="submit">
