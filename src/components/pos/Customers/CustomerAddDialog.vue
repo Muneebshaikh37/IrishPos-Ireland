@@ -34,6 +34,19 @@
       <template v-if="form.invalid('country_code')">
         <div class="mt-2 text-sm text-red-600">{{ form.getError('country_code') }}</div>
       </template>
+      <div class="relative z-[999] mt-4">
+        <FormLabel for="customerEmail" class="block font-medium text-gray-700">{{ $t('customers.emailOptional') }}</FormLabel>
+        <FormInput
+            id="customerEmail"
+            v-model="customerEmail"
+            type="email"
+            class="w-full px-4 py-2 border rounded-lg"
+            :placeholder="$t('customers.enterEmail')"
+        />
+        <template v-if="form.invalid('email')">
+          <div class="mt-2 text-sm text-red-600">{{ form.getError('email') }}</div>
+        </template>
+      </div>
       <div class="mt-4 flex justify-end" :class="{ 'space-x-2': locale !== 'ar', 'space-x-reverse space-x-2': locale === 'ar' }">
         <Button variant="secondary" @click="closeDialog"> {{ $t('customers.cancel') }}</Button>
         <Button variant="primary" @click="addCustomer" :disabled="isLoading">
@@ -79,6 +92,7 @@ const results = ref();
 // Customer form fields
 const customerName = ref('');
 const customerPhone = ref('');
+const customerEmail = ref('');
 const isLoading = ref(false);
 
 const form = reactive(new ErrorHandler());
@@ -95,6 +109,7 @@ const addCustomer = async () => {
       phone: results.value.nationalNumber,
       full_phone: results.value.formatInternational,
       country_code: `+${results.value.countryCallingCode}`,
+      email: customerEmail.value?.trim() || null,
     };
 
     // Make the POST request to save the new customer

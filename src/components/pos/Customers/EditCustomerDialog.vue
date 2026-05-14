@@ -20,6 +20,22 @@
           </template>
         </div>
         <div class="mt-4">
+          <label for="email">{{ $t('customers.emailOptional') }}</label>
+          <FormInput
+              id="email"
+              v-model="customer.email"
+              type="email"
+              class="w-full p-2 border"
+              :class="{ 'border-red-500': form.invalid(`email`) }"
+              :placeholder="$t('customers.enterEmail')"
+          />
+          <template v-if="form.invalid(`email`)">
+            <div class="mt-0.5 text-red-600">
+              {{ form.getError(`email`) }}
+            </div>
+          </template>
+        </div>
+        <div class="mt-4">
           <label for="phone">{{ $t('customers.phone') }}</label>
           <div :class="{ 'rtl-phone-input': locale === 'ar' }">
             <MazPhoneNumberInput
@@ -116,6 +132,7 @@ const updateCustomer = async () => {
       phone: results.value.nationalNumber,
       full_phone: results.value.formatInternational,
       country_code: `+${results.value.countryCallingCode}`,
+      email: customer.value.email?.trim() || null,
       _method: "PUT",
     };
     const response  = await httpClient.post(endpoint, payload);

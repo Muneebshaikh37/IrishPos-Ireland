@@ -39,7 +39,7 @@
         </td>
         <!-- Display VAT (Tax) -->
         <td class="py-3 px-2">
-          {{ (product.vat !== 0 && product.vat !== "0.00" ) ? (calculateVatAmountAfterDiscount(product) * product.quantity).toFixed(2) : '0.00' }}
+          {{ (calculateVatAmountAfterDiscount(product) * product.quantity).toFixed(2) }}
         </td>
         <td class="py-3 px-2">
           {{ formatPrice(calculateProductTotal(product)) }}
@@ -97,29 +97,21 @@ function removeProduct(index) {
   }
 }
 function calculateProductTotal(product) {
-  const price = product.sale_price || 0;
-  const quantity = product.quantity || 1;
-  const discount = product.discount || 0; // Default discount to 0 if undefined
+  const price = Number(product.sale_price) || 0;
+  const quantity = Number(product.quantity) || 1;
+  const discount = Number(product.discount) || 0;
   const discountAmount = (price * quantity) * (discount / 100);
 
-  // Calculate total price after discount
-  const totalBeforeDiscount = price * quantity;
-  const totalAfterDiscount = totalBeforeDiscount - discountAmount;
-  
-  // Calculate VAT if applicable
-  const vatAmount = (product.vat !== 0 && product.vat !== "0.00") ? calculateVatAmountAfterDiscount(product) * quantity : 0;
-
-  return totalAfterDiscount + vatAmount; // Return total including VAT
+  // Prices are tax-inclusive; total = (price * qty) - discount.
+  return (price * quantity) - discountAmount;
 }
 
 
-// Calculate the VAT amount after applying discount (15%)
+// Tax = original (pre-discount) price × rate (shop convention).
 function calculateVatAmountAfterDiscount(product)
 {
-  const price = product.sale_price || 0;
-  const discount = product.discount || 0;
-  const discountedPrice = price - (price * (discount / 100)); // Apply discount
-  return discountedPrice > 0 ? discountedPrice * vatValue : 0; // VAT is 15%, ensure no negative VAT
+  const price = Number(product.sale_price) || 0;
+  return price > 0 && vatValue > 0 ? price * vatValue : 0;
 }
 
 function updateProductTotal(product, index) {

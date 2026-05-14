@@ -11,11 +11,6 @@
               {{ $t('invoices.continueSelling') }}
             </Button>
           </RouterLink>
-          <RouterLink v-else-if="!loading" :to="{ name: 'Register Open' }">
-            <Button variant="primary" class="mr-2 shadow-md">
-              {{ $t('invoices.openRegister') }}
-            </Button>
-          </RouterLink>
         </div>
         <div class="relative w-56 text-slate-500 mr-3 ">
           <FormInput v-model="params.search" type="text" class="w-56 pr-10 !box" :placeholder="$t('invoices.searchPlaceholder')"/>

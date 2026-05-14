@@ -109,10 +109,11 @@ export default {
    * @param {Object} params
    * @param {string} params.superAdminId
    */
-  getDashboardAnalytics({ superAdminId }) {
+  getDashboardAnalytics({ superAdminId } = {}) {
     const query = new URLSearchParams();
     if (superAdminId) query.set('super_admin_id', superAdminId);
-    return superAdminHttp.get(`/analytics/dashboard?${query.toString()}`);
+    const qs = query.toString();
+    return superAdminHttp.get(`/analytics/dashboard${qs ? `?${qs}` : ''}`);
   },
 
   /**

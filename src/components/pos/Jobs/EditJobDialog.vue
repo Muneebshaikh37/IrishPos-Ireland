@@ -90,7 +90,8 @@ const updateJob = async () => {
   isLoading.value = true;
   try {
     const baseUrl = import.meta.env.VITE_PUBLIC_API_URL_POS;
-    const endpoint = `${baseUrl}/api/tasks/${job.value.id}?user_id=${USER_ID}`;
+    // VITE_PUBLIC_API_URL_POS already ends in `/api` — don't duplicate it.
+    const endpoint = `${baseUrl}/tasks/${job.value.id}?user_id=${USER_ID}`;
 
     const payload = {
       title: job.value.title,

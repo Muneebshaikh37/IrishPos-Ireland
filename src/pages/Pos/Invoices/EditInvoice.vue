@@ -630,30 +630,25 @@ const calculateVatForProduct = (unitPrice, quantity, vatPercentage, discount = 0
   // Step 3: Calculate total discounted price
   const totalDiscountedPrice = totalSalePrice - totalDiscount;
 
-  // Step 4: Calculate VAT on the total discounted price using the formula: Discounted_Price × (vatValue / (1 + vatValue))
-  const vatAmount = totalDiscountedPrice * (vatValue / (1 + vatValue));
+  // Tax = discounted price × rate (shop convention).
+  const rate = authStore.getVatValue;
+  const vatAmount = rate > 0 ? totalDiscountedPrice * rate : 0;
 
   return vatAmount;
 };
 
 function calculateVatForProductItem(product) {
-  const price = product.sale_price || 0;
-  const quantity = product.quantity || 1;
-  const discountAmount = product.discount > 0
-    ? price * (product.discount / 100) * quantity
-    : 0;
-  const discountedPrice = (price * quantity) - discountAmount;
-  return product.vat !== 0 && product.vat !== "0.00" ? discountedPrice * (vatValue / (1 + vatValue)) : 0;
+  // Tax = original (pre-discount) price × rate (shop convention).
+  const price = Number(product.sale_price) || 0;
+  const quantity = Number(product.quantity) || 1;
+  const rate = authStore.getVatValue;
+  return rate > 0 ? (price * quantity) * rate : 0;
 }
 
 function calculateVatForServiceItem(service) {
-  const price = service.sale_price || 0;
-  const discountAmount = service.discount > 0
-    ? price * (service.discount / 100)
-    : 0;
-  const discounted = price - discountAmount; // assumed VAT-inclusive sale price
-  // Services are always subject to VAT in KSA
-  return discounted * (vatValue / (1 + vatValue));
+  const price = Number(service.sale_price) || 0;
+  const rate = authStore.getVatValue;
+  return rate > 0 ? price * rate : 0;
 }
 
 // Helper function to calculate product total for edit invoice

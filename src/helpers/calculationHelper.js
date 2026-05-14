@@ -14,55 +14,24 @@ import {useAuthStore} from "@/stores/auth.js";
  * @returns {number} - The subtotal.
  */
 export function calculateSubtotal(products) {
+    // Subtotal (Tax Exclusive) = price × (1 − rate), shop convention.
     const authStore = useAuthStore();
-    const VAT = authStore.getUserVat;
     const vatValue = authStore.getVatValue;
     return products.reduce((total, product) => {
-        const price = product.selectedPacking?.sale_price || 0; // VAT-inclusive price
-        const quantity = product.quantity || 1;
-        let priceExcludingVAT = 0;
-        if (product.vat !== 0) {
-            // Correct VAT extraction from inclusive price
-            priceExcludingVAT = price / (1 + vatValue);
-        } else {
-            priceExcludingVAT = price;
-        }
+        const price = Number(product.selectedPacking?.sale_price ?? product.sale_price) || 0;
+        const quantity = Number(product.quantity) || 1;
+        const inclusive = price * quantity;
+        const exclusive = vatValue > 0 ? inclusive * (1 - vatValue) : inclusive;
         const discountAmount = product.discount > 0
-            ? (priceExcludingVAT * quantity) * (product.discount / 100)
+            ? exclusive * (product.discount / 100)
             : 0;
-        const discountedSubtotal = (priceExcludingVAT * quantity) - discountAmount;
-        return total + discountedSubtotal;
+        return total + (exclusive - discountAmount);
     }, 0);
 }
 export function calculateSubtotalTaxInclusive(products) {
-
-    return products.reduce((total, product) => {
-        const price = product.selectedPacking?.sale_price || 0; // VAT-inclusive price
-        const quantity = product.quantity || 1;
-
-
-        let priceExcludingVAT = 0 ;
-
-        // If VAT is applicable (1 = VAT-inclusive price)
-        if (product.vat !== 0) {
-            // Exclude VAT from price by dividing by 1.15 (removing 15% VAT)
-            const vat = (price / 100) * VAT ;
-            priceExcludingVAT = price
-        } else {
-            // If no VAT, price is tax-exclusive already
-            priceExcludingVAT = price;
-        }
-
-        // Apply discount after VAT removal (if discount is applied)
-        const discountAmount = product.discount > 0
-            ? (priceExcludingVAT * quantity) * (product.discount / 100)
-            : 0;
-
-        // Subtotal after discount
-        const discountedSubtotal = (priceExcludingVAT * quantity) - discountAmount;
-
-        return total + discountedSubtotal; // Return the total after applying the discount
-    }, 0);
+    // Prices are tax-EXCLUSIVE; just sum (price * qty - discount). The
+    // `calculateTotal` helper layers tax on top — don't double-count here.
+    return calculateSubtotal(products);
 }
 
 export function calculateProductTotal(product) {
@@ -104,15 +73,10 @@ export function calculateTax(products) {
     const authStore = useAuthStore();
     const vatValue = authStore.getVatValue;
     return products.reduce((total, product) => {
-        // VAT-inclusive unit price; support both product structures
-        const price = (product.selectedPacking?.sale_price ?? product.sale_price) || 0;
-        const quantity = product.quantity || 1;
-        const discountAmount = product.discount > 0
-            ? price * (product.discount / 100) * quantity
-            : 0;
-        const discountedPrice = (price * quantity) - discountAmount;
-        // Correct VAT extraction from inclusive price
-        const vatAmount = product.vat !== 0 && product.vat !== "0.00" ? discountedPrice * (vatValue / (1 + vatValue)) : 0;
+        // Tax = original (pre-discount) price × rate (shop convention).
+        const price = Number(product.selectedPacking?.sale_price ?? product.sale_price) || 0;
+        const quantity = Number(product.quantity) || 1;
+        const vatAmount = vatValue > 0 ? (price * quantity) * vatValue : 0;
         return total + vatAmount;
     }, 0);
 }

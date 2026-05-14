@@ -122,10 +122,9 @@ function calculateServiceTotal(service) {
 }
 
 function calculateServiceVat(service) {
-  const price = service.sale_price || 0;
-  const discount = service.discount || 0;
-  const discounted = price - (price * (discount / 100));
-  return discounted > 0 ? discounted * (vatValue / (1 + vatValue)) : 0;
+  // Tax = original price × rate (shop convention).
+  const price = Number(service.sale_price) || 0;
+  return price > 0 && vatValue > 0 ? price * vatValue : 0;
 }
 
 function updateServiceTotal(service, index) {

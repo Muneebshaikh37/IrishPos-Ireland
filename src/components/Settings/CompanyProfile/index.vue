@@ -18,7 +18,6 @@ const createFormData = ref({
 	name: "",
 	email: "",
 	address: "",
-	vat_number: "",
 	country_code: "+353",
 	phone: "",
 })
@@ -35,6 +34,13 @@ const submitCreate = async () => {
 		if (result.success) {
 			isloading.value = false;
       form.clear();
+			// Reflect the new company name in the sidebar/header immediately.
+			const newName = createFormData.value.name;
+			if (authStore.user) {
+				authStore.user = { ...authStore.user, name: newName, store_name: newName };
+				localStorage.setItem('user', JSON.stringify(authStore.user));
+				localStorage.setItem('store_name', newName);
+			}
 			toast().fry(pan.profile.success(result.message))
 		}
 	} catch (error) {
@@ -50,8 +56,17 @@ const isfetchProfile = async () => {
 		// const response = await apiService.product.brandsList();
 		const result = handleResponse(response);
 		if (result.success) {
-			createFormData.value = result.data[0]
-			console.log("result", result.data)
+			// API returns a single object: { name, email, account: { phone, address, country_code }, settings: {...} }
+			const profile = Array.isArray(result.data) ? result.data[0] : result.data;
+			if (profile) {
+				createFormData.value = {
+					name: profile.name ?? "",
+					email: profile.email ?? "",
+					address: profile.account?.address ?? "",
+					country_code: profile.account?.country_code ?? "+353",
+					phone: profile.account?.phone ?? "",
+				};
+			}
 		}
 	} catch (error) {
 		const result = handleError(error);
@@ -90,14 +105,6 @@ onMounted(() => {
                          :class="{ 'border-red-500': form.invalid('name') }" />
               <template v-if="form.invalid('name')">
                 <div class="mt-2 text-xs text-red-600">{{ form.getError('name') }}</div>
-              </template>
-            </div>
-            <div class="col-span-6">
-              <FormLabel for="vat_number">{{ $t('company-profile.vatNumber') }} <span class="text-danger"> *</span></FormLabel>
-              <FormInput v-model="createFormData.vat_number" id="vat_number" type="text" :placeholder="$t('company-profile.enterVatNumber')"
-                         :class="{ 'border-red-500': form.invalid('vat_number') }" />
-              <template v-if="form.invalid('vat_number')">
-                <div class="mt-2 text-xs text-red-600">{{ form.getError('vat_number') }}</div>
               </template>
             </div>
             <div class="col-span-6">
