@@ -54,7 +54,10 @@ const saveVat = async () => {
 		const result = handleResponse(response);
 		if (result.success) {
 			isloading.value = false
-			toast().fry(pan.tax.success(result.message)) 
+			// Refresh the cached VAT in the auth store so POS / Edit Invoice
+			// pick up the new rate immediately without a re-login.
+			try { await authStore.updateVat(); } catch (_) {}
+			toast().fry(pan.tax.success(result.message))
 		}
 	} catch (error) {
 		const result = handleError(error);
@@ -150,8 +153,8 @@ watch( () => TexFormData.value.is_zatca,
 								<div class="col-span-6">
 									<FormLabel> VAT <span class="text-danger "> *</span></FormLabel>
 									<div class="flex item-center justify-center"> 
-									<FormInput id="name_en" type="text" v-model="TexFormData.subject_to_vat" placeholder=""
-									class="rounded-r-none" :class="{'border-red-500': form.invalid('subject_to_vat')}" disabled />
+									<FormInput id="name_en" type="number" step="0.01" min="0" max="100" v-model="TexFormData.subject_to_vat" placeholder=""
+									class="rounded-r-none" :class="{'border-red-500': form.invalid('subject_to_vat')}" />
 									<p class="bg-gray-100 flex text-base items-center justify-center w-[55px]   border border-slate-200 shadow-sm rounded-r-md rounded-l-none"> % </p>
 									</div>
 									<template v-if="form.invalid('subject_to_vat')">

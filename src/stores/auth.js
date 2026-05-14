@@ -7,6 +7,41 @@ import { setCurrencyCode } from "@/utils/currency";
 import router from "@/router";
 import authService from "@/network/modules/auth.js";
 
+/**
+ * Permission names from the backend use plural subjects (e.g. `invoices:List`,
+ * `products:Create`, `customers:Update`, `suppliers:Delete`). The router
+ * gates use the singular form (`invoice`, `product`, `customer`, `supplier`).
+ * For each permission we therefore emit a CASL rule for both forms so either
+ * convention works. Subjects that aren't simple plurals (`chartOfAccounts`,
+ * `journalEntries`, `expenses`, `generalLedger`) are emitted as-is.
+ */
+function buildAbilityRules(permissions) {
+    if (!Array.isArray(permissions)) return [];
+
+    const knownPluralToSingular = {
+        invoices: "invoice",
+        products: "product",
+        customers: "customer",
+        suppliers: "supplier",
+    };
+
+    const rules = [];
+    for (const perm of permissions) {
+        const permissionName = typeof perm === "string" ? perm : (perm?.name ?? perm);
+        if (!permissionName || !String(permissionName).includes(":")) continue;
+
+        const [subject, action] = String(permissionName).split(":");
+        if (!subject || !action) continue;
+
+        const act = action.toLowerCase();
+        rules.push({ action: act, subject });
+
+        const singular = knownPluralToSingular[subject];
+        if (singular) rules.push({ action: act, subject: singular });
+    }
+    return rules;
+}
+
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
@@ -71,12 +106,7 @@ export const useAuthStore = defineStore('auth', {
 
                     // Update ability from permissions before any redirect (fixes access denied for Super Admin and all roles)
                     if (this.user.permissions && Array.isArray(this.user.permissions) && this.user.permissions.length > 0) {
-                        const rules = this.user.permissions.map((perm) => {
-                            const permissionName = typeof perm === 'string' ? perm : (perm?.name ?? perm);
-                            if (!permissionName || !String(permissionName).includes(':')) return null;
-                            const [subject, action] = String(permissionName).split(':');
-                            return { action: action.toLowerCase(), subject };
-                        }).filter(rule => rule !== null);
+                        const rules = buildAbilityRules(this.user.permissions);
                         // Give platform-level roles full access
                         if (effectiveRole === 'Product Owner' || effectiveRole === 'Super Admin' || effectiveRole === 'Admin' || effectiveRole === 'Shop Owner') {
                             rules.push({ action: 'manage', subject: 'all' });
@@ -240,13 +270,7 @@ export const useAuthStore = defineStore('auth', {
 
                     // Update ability before redirect (same as login)
                     if (this.user.permissions && Array.isArray(this.user.permissions) && this.user.permissions.length > 0) {
-                        const rules = this.user.permissions.map((perm) => {
-                            const permissionName = typeof perm === 'string' ? perm : (perm?.name ?? perm);
-                            if (!permissionName || !String(permissionName).includes(':')) return null;
-                            const [subject, action] = String(permissionName).split(':');
-                            return { action: action.toLowerCase(), subject };
-                        }).filter(rule => rule !== null);
-                        this.ability.update(rules);
+                        this.ability.update(buildAbilityRules(this.user.permissions));
                     } else {
                         this.ability.update([]);
                     }
@@ -440,17 +464,7 @@ export const useAuthStore = defineStore('auth', {
                     if (this.user_id) localStorage.setItem('user_id', this.user_id);
 
                     if (Array.isArray(effectivePermissions) && effectivePermissions.length > 0) {
-                        const rules = effectivePermissions.map((perm) => {
-                            // Handle both object format {name: "product:List"} and string format "product:List"
-                            const permissionName = typeof perm === 'string' ? perm : (perm.name || perm);
-                            if (!permissionName || !permissionName.includes(':')) {
-                                console.warn('Invalid permission format:', perm);
-                                return null;
-                            }
-                            const [subject, action] = permissionName.split(':');
-                            return { action: (action || '').toLowerCase(), subject };
-                        }).filter(rule => rule !== null); // Filter out invalid permissions
-                        this.ability.update(rules);
+                        this.ability.update(buildAbilityRules(effectivePermissions));
                     } else {
                         this.ability.update([]);
                     }
@@ -508,17 +522,7 @@ export const useAuthStore = defineStore('auth', {
                     if (this.user_id) localStorage.setItem('user_id', this.user_id);
 
                     if (Array.isArray(effectivePermissions) && effectivePermissions.length > 0) {
-                        const rules = effectivePermissions.map((perm) => {
-                            // Handle both object format {name: "product:List"} and string format "product:List"
-                            const permissionName = typeof perm === 'string' ? perm : (perm.name || perm);
-                            if (!permissionName || !permissionName.includes(':')) {
-                                console.warn('Invalid permission format:', perm);
-                                return null;
-                            }
-                            const [subject, action] = permissionName.split(':');
-                            return { action: (action || '').toLowerCase(), subject };
-                        }).filter(rule => rule !== null); // Filter out invalid permissions
-                        this.ability.update(rules);
+                        this.ability.update(buildAbilityRules(effectivePermissions));
                     } else {
                         this.ability.update([]);
                     }

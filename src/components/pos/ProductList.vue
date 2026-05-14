@@ -98,11 +98,9 @@ function calculateProductTotal(product) {
 // Calculate the VAT amount after applying discount (15%)
 function calculateVatAmountAfterDiscount(product)
 {
-  const price = product.sale_price || 0;
-  const discount = product.discount || 0;
-  const discountedPrice = price - (price * (discount / 100)); // Apply discount
-  // Correct VAT extraction from inclusive price
-  return discountedPrice > 0 ? discountedPrice * (vatValue / (1 + vatValue)) : 0;
+  // Tax = original price × rate (shop convention).
+  const price = Number(product.sale_price) || 0;
+  return price > 0 && vatValue > 0 ? price * vatValue : 0;
 }
 
 function updateProductTotal(product, index) {

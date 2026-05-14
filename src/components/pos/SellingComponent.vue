@@ -291,40 +291,39 @@ const tileServices = computed(() => {
 });
 
 // Calculations
+// Sale prices are TAX-INCLUSIVE — the rate set on /setting/tax is already
+// baked into the entered price. We derive the tax-exclusive subtotal and
+// the embedded tax for display; the customer pays price − discount.
+// NOTE: sale_price arrives from the API as a string — always coerce to Number.
+const totalSubtotalInclusive = computed(() => {
+  const productsSum = (products.value || []).reduce((total, product) => {
+    const price = Number(product.sale_price) || 0;
+    const quantity = Number(product.quantity) || 1;
+    return total + (price * quantity);
+  }, 0);
+  const servicesSum = (services.value || []).reduce((total, service) => {
+    const price = Number(service.sale_price) || 0;
+    return total + price;
+  }, 0);
+  return productsSum + servicesSum;
+});
+
+// `subtotal` shown on the right panel = price − tax (where tax = price × rate).
+// This is the shop's convention: with rate 10% and €100, subtotal = €90, tax = €10.
 const subtotal = computed(() => {
-  if (!products.value || products.value.length === 0) {
-    return 0;
-  }
-  return products.value.reduce((total, product) => {
-    const price = product.sale_price || 0;
-    const quantity = product.quantity || 1;
-    const discount = product.discount || 0;
-    const discountAmount = (price * quantity) * (discount / 100);
-    const discountedInclusive = (price * quantity) - discountAmount;
-    const vatAmount = calculateVatForProductItem(product); // already considers quantity
-    const discountedExclusive = discountedInclusive - vatAmount;
-    return total + discountedExclusive;
-  }, 0);
+  const rate = authStore.getVatValue;
+  return rate > 0 ? totalSubtotalInclusive.value * (1 - rate) : totalSubtotalInclusive.value;
 });
 
+// Kept for backward-compatibility with callers expecting the inclusive sum.
 const servicesSubtotal = computed(() => {
-  if (!services.value || services.value.length === 0) {
-    return 0;
-  }
-  return services.value.reduce((total, service) => {
-    const price = service.sale_price || 0;
-    const discount = service.discount || 0;
-    const discountAmount = price * (discount / 100);
-    const discountedInclusive = price - discountAmount;
-    const vatAmount = calculateVatForServiceItem(service);
-    const discountedExclusive = discountedInclusive - vatAmount;
-    return total + discountedExclusive;
+  return (services.value || []).reduce((total, service) => {
+    const price = Number(service.sale_price) || 0;
+    return total + price;
   }, 0);
 });
 
-const totalSubtotal = computed(() => {
-  return subtotal.value + servicesSubtotal.value;
-});
+const totalSubtotal = computed(() => subtotal.value);
 
 const subtotalTaxInclusive = computed(() => {
   if (!products.value || products.value.length === 0) {
@@ -351,35 +350,27 @@ const discountAmount = computed(() => {
   return productDiscounts + serviceDiscounts;
 });
 
+// Tax = original (pre-discount) price × rate. Discount does not reduce tax.
 const tax = computed(() => {
-  const productVat = (products.value && products.value.length > 0)
-    ? calculateTax(products.value)
-    : 0;
-  const serviceVat = (services.value && services.value.length > 0)
-    ? services.value.reduce((sum, s) => sum + calculateVatForServiceItem(s), 0)
-    : 0;
-  return productVat + serviceVat;
+  const rate = authStore.getVatValue;
+  return rate > 0 ? totalSubtotalInclusive.value * rate : 0;
 });
 
 const totalAfterDiscount = computed(() => {
-  let discountedSubtotal = totalSubtotal.value;
+  // Prices are tax-inclusive: customer pays inclusive_total − discounts.
+  // Tax is NOT added on top — it's already inside the price.
+  let payable = totalSubtotalInclusive.value - discountAmount.value;
 
-  // Apply percentage discount if available
   if (additionalDiscountPercent.value) {
-    const percentageDiscount = (additionalDiscountPercent.value / 100) * discountedSubtotal;
-    discountedSubtotal -= percentageDiscount;
+    const percentageDiscount = (additionalDiscountPercent.value / 100) * payable;
+    payable -= percentageDiscount;
   }
 
-  // Apply fixed discount if available
   if (additionalDiscountFixed.value) {
-    discountedSubtotal -= additionalDiscountFixed.value;
+    payable -= additionalDiscountFixed.value;
   }
 
-  // Ensure the total is not negative
-  const totalWithTax = Math.max(0, discountedSubtotal + tax.value);
-
-  // Round the result to two decimal places
-  return roundToTwoDecimals(totalWithTax);
+  return roundToTwoDecimals(Math.max(0, payable));
 });
 
 const additionalDiscountAmount = computed(() => {
@@ -630,23 +621,18 @@ const handleSelectCustomer = (customerId) => {
 };
 
 function calculateVatForProductItem(product) {
-  const price = product.sale_price || 0;
-  const quantity = product.quantity || 1;
-  const discountAmount = product.discount > 0
-    ? price * (product.discount / 100) * quantity
-    : 0;
-  const discountedPrice = (price * quantity) - discountAmount;
-  return product.vat !== 0 ? discountedPrice * (vatValue / (1 + vatValue)) : 0;
+  // Tax = original (pre-discount) price × rate. Customer pays the displayed
+  // price; subtotal is shown as price − tax.
+  const price = Number(product.sale_price) || 0;
+  const quantity = Number(product.quantity) || 1;
+  const rate = authStore.getVatValue;
+  return rate > 0 ? (price * quantity) * rate : 0;
 }
 
 function calculateVatForServiceItem(service) {
-  const price = service.sale_price || 0;
-  const discountAmount = service.discount > 0
-    ? price * (service.discount / 100)
-    : 0;
-  const discounted = price - discountAmount; // assumed VAT-inclusive sale price
-  // Services are always subject to VAT in KSA
-  return discounted * (vatValue / (1 + vatValue));
+  const price = Number(service.sale_price) || 0;
+  const rate = authStore.getVatValue;
+  return rate > 0 ? price * rate : 0;
 }
 
 async function handlePayment(paymentMethods) {

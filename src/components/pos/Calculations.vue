@@ -98,23 +98,10 @@ const emit = defineEmits([
 //   return totalAfterDiscount.value;
 // });
 
-// Computed total after applying discounts and tax
-const totalAfterDiscount = computed(() => {
-  let discountedSubtotal = props.subtotal;
-
-  if (props.additionalDiscountPercent.value) {
-    const percentageDiscount = (props.additionalDiscountPercent.value / 100) * (discountedSubtotal + props.tax);
-    discountedSubtotal -= percentageDiscount;
-  }
-
-  if (props.additionalDiscountFixed.value) {
-    discountedSubtotal -= props.additionalDiscountFixed.value;
-  }
-
-  return discountedSubtotal + props.tax; // Final total after applying discounts and tax
-});
-
-const total = computed(() => totalAfterDiscount.value);  // Use the same calculation
+// Use the total computed in the parent (SellingComponent / EditInvoice).
+// The parent already accounts for line discounts, additional discount, and
+// tax — re-deriving it here was double-counting / missing the line discount.
+const total = computed(() => props.total ?? 0);
 const currencySymbol = computed(() => getCurrencySymbol());
 
 

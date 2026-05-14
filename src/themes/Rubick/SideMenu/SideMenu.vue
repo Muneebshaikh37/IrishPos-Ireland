@@ -80,6 +80,7 @@ function buildStaticSideMenu() {
   const userRoles = [user?.role, ...(Array.isArray(user?.roles) ? user.roles : [])].filter(Boolean);
   const isProductOwner = userRoles.includes("Product Owner");
   const isSuperAdmin = userRoles.includes("Super Admin");
+  const isShopOwner = userRoles.includes("Shop Owner");
 
   // Route to correct menu based on role
   const base = isProductOwner
@@ -92,14 +93,47 @@ function buildStaticSideMenu() {
   // For shop-level users, filter out modules not in their allowed_modules list.
   // allowed_modules: null = no restriction, string[] = only these are visible.
   const allowedModules: string[] | null = user?.allowed_modules ?? null;
-  const filtered = (!isProductOwner && !isSuperAdmin && allowedModules !== null)
+  const moduleFiltered = (!isProductOwner && !isSuperAdmin && allowedModules !== null)
     ? cloned.filter((item: any) => {
         if (item.module_key === null || item.module_key === undefined) return true; // always visible
         return allowedModules.map((m: string) => m.toLowerCase()).includes(item.module_key.toLowerCase());
       })
     : cloned;
 
-  isAllMenu.value = filtered.map((menu: any) => ({
+  // For non-Shop-Owner shop users (Cashier, Worker), hide menu items whose
+  // required `permissions` are not present in the user's permission list.
+  // Shop Owner gets the full set from their package; Super Admin / Product
+  // Owner have their own menus and are not filtered here.
+  const userPerms: string[] = Array.isArray(user?.permissions)
+    ? user.permissions.map((p: any) => typeof p === "string" ? p : (p?.name ?? "")).filter(Boolean)
+    : [];
+
+  const hasAnyPerm = (required: string[] | null | undefined): boolean => {
+    if (!required || required.length === 0) return true;
+    return required.some((r) => userPerms.includes(r));
+  };
+
+  const shouldApplyPermFilter = !isProductOwner && !isSuperAdmin && !isShopOwner;
+
+  const permFiltered = shouldApplyPermFilter
+    ? moduleFiltered
+        .map((item: any) => {
+          // Recursively filter children first
+          if (Array.isArray(item.children) && item.children.length > 0) {
+            item.children = item.children.filter((c: any) => hasAnyPerm(c.permissions));
+          }
+          return item;
+        })
+        .filter((item: any) => {
+          // Keep a top-level item if it has any surviving child, OR if its
+          // own permission gate passes (covers leaf items without children).
+          const hasChild = Array.isArray(item.children) && item.children.length > 0;
+          if (hasChild) return true;
+          return hasAnyPerm(item.permissions);
+        })
+    : moduleFiltered;
+
+  isAllMenu.value = permFiltered.map((menu: any) => ({
     ...menu,
     is_parent: menu.children?.length
       ? menu.children.some((child: any) => routeMatchesChild(child))

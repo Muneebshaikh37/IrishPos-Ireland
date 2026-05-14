@@ -20,6 +20,22 @@
           </template>
         </div>
         <div class="mt-4">
+          <label for="email">{{ $t('customers.emailOptional') }}</label>
+          <FormInput
+              id="email"
+              v-model="customer.email"
+              type="email"
+              class="w-full p-2 border"
+              :class="{ 'border-red-500': form.invalid(`email`) }"
+              :placeholder="$t('customers.enterEmail')"
+          />
+          <template v-if="form.invalid(`email`)">
+            <div class="mt-0.5 text-red-600">
+              {{ form.getError(`email`) }}
+            </div>
+          </template>
+        </div>
+        <div class="mt-4">
           <label for="phone">{{ $t('customers.phone') }}</label>
           <MazPhoneNumberInput
               id="phone"
@@ -78,7 +94,7 @@ const USER_ID = authStore.getUserId;
 const emits = defineEmits(["close", "created"]);
 
 const show = ref(props.show);
-const customer = ref({ name: "", phone: "" });
+const customer = ref({ name: "", phone: "", email: "" });
 const countryCode = ref("IE");
 const results = ref();
 const isLoading = ref(false);
@@ -94,7 +110,7 @@ watch(
 );
 
 const resetForm = () => {
-  customer.value = { name: "", phone: "" };
+  customer.value = { name: "", phone: "", email: "" };
   results.value = null;
 };
 
@@ -110,6 +126,7 @@ const saveCustomer = async () => {
       phone: results.value.nationalNumber,
       full_phone: results.value.formatInternational,
       country_code: `+${results.value.countryCallingCode}`,
+      email: customer.value.email?.trim() || null,
     };
     const response = await httpClient.post(endpoint, payload);
     const result = handleResponse(response);
